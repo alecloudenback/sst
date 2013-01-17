@@ -11,6 +11,7 @@ Model Components
 Scenario
 --------
 
+-   Scenario plays out over a single day
 
 Trains
 ------
