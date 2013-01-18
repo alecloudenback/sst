@@ -3,19 +3,19 @@ function Platform(name) {
     this.name = name || "";
     this.queue = [];
     this.push = function(person) {
-        this.queue.push(person);
+        return this.queue.push(person);
     };
     this.pop = function() {
-        this.queue.pop();
+        return this.queue.pop();
     };
 }
 
 // passenger
-function Passenger(id) {
+function Passenger() {
     this.destination = "";
     this.waiting = false;
     this.countDown = 0;
-    this.
+    this.Clock = new Clock();
     this.enter = function(place) {
         if (place instanceof Platform) {
             place.push(this);
@@ -25,6 +25,24 @@ function Passenger(id) {
             // error
         }
     }
+}
+
+// Train
+function Train(curSeg, headingLeft) {
+    this.headingLeft = headingLeft;
+    this.currentSegment = curSeg;
+    this.capacity = 500;
+    this.tick = function() {
+
+    }
+    this.travel = function{
+        if (this.currentSegment.left.hasTrain) {
+            // Don't proceed
+        } else if (this.currentSegment instanceof Track) {
+            // continue traveling along the track
+        }
+    }
+
 }
 
 // Clock
@@ -46,21 +64,71 @@ function Clock(mu, sigma) {
     }
 }
 
+// Route
+// A route is one of: a RouteSegment, a Terminus
+function RouteSegment(here, left, right) {
+    this.here = here; // The first here should be a platform
+    this.hasTrain = false;
+    this.left = left;
+    this.right = right;
+
+    // insertSegment(RouteSegment)
+    // Insert a RouteSegment, seg, to the left of the leftmost location
+    this.insertSegment = function(type) {
+        oldleft = this.left;
+        this.left = new RouteSegment(type,oldleft,this);
+    }
+
+    this.trainEnter() {
+        this.hasTrain = true;
+    }
+
+    this.trainExit() {
+        this.hasTrain = false;
+    }
+}
+
+// Track
+// A track is a distance that the train must travel in between stations
+function Track(len) {
+    this.length = len;
+}
+
+// Terminus
+// A terminus is a where the train switches direction
+function Terminus() {
+
+}
+
 
 // World
 // A place to keep track of all of the objects
 function World() {
     this.passengers = [];
-    this.stations = [];
+    this.line = new RouteSegment(new Platform(),new Terminus(),new Terminus());
     this.trains = [];
     this.tickCount = 0;
     this.tick = function() {
         //tick the world forward
     }
+    this.generatePassengers = function(num) {
+        for (i = num; i > 0; i--) {
+            this.passengers.push(new Passenger());
+        }
+    }
+    this.generateTrains = function(num) {
+       for (i = num; i > 0; i--) {
+        this.trains.push(new Train());
+    }
 }
-
+this.addToRoute = function(location) {
+    this.line.insertSegment(location);
+}
+}
 
 // Run the model
 
-Dtwn = new Platform();
-
+mbta = new World();
+mbta.addToRoute(new Track(1000));
+mbta.addToRoute(new Platform());
+mtbta.generateTrains(1);
