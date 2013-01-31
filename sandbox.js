@@ -45,7 +45,6 @@ function Train(startSeg, headingLeft) {
     }
     this.capacity = 500;
     this.tick = function() {
-        console.log("train on ", this.currentSegment, " traveling to ", this.nextSegment());
         if (this.currentSegment.kind instanceof Station ) {
         // if in station, continue station procedures
         this.stationProcedures();
@@ -58,6 +57,7 @@ function Train(startSeg, headingLeft) {
 
 
     this.stationProcedures = function() {
+        console.log("train in ", this.currentSegment, " for ", this.timeInStation, " more ticks before going to", this.nextSegment());
         if (this.timeInStation === 0) {
             this.timeInStation = stationWaitTime;
             this.distanceOnTrack = 0;
@@ -70,11 +70,8 @@ function Train(startSeg, headingLeft) {
 
     this.travel = function() {
         console.log("train on ", this.currentSegment, " traveling to ", this.nextSegment());
-        if (this.currentSegment.left.hasTrain) {
+        if (this.nextSegment().hasTrain) {
                 // Don't proceed
-            } else if (this.currentSegment instanceof Terminus) {
-                // switch directions
-                this.headingLeft = !this.headingLeft;
             } else if (this.currentSegment.kind instanceof Track) {
                 if (this.currentSegment.kind.length - this.speed / 60 / 60 < 0) {
                     this.currentSegment.trainExit();
@@ -86,6 +83,11 @@ function Train(startSeg, headingLeft) {
                 this.currentSegment = this.nextSegment();
             } else {
                 console.log("Error in train routing:", this);
+            }
+
+            if (this.nextSegment() instanceof Terminus) {
+                // switch directions
+                this.headingLeft = !this.headingLeft;
             }
         }
 
@@ -108,6 +110,11 @@ function Clock(mu, sigma) {
     this.stayLength = function() {
         return this.rnorm();
     }
+}
+
+function Route(leftMost, rightMost) {
+    this.leftMost = leftMost;
+    this.rightMost = rightMost;
 }
 
 // Route
@@ -136,18 +143,18 @@ function RouteSegment(here, left, right) {
 
     this.leftMost = function() {
         if (this.left instanceof Terminus) {
-            // if left is not falsey, keep going
-            return this.left.leftMost();
-        } else {
+            // if left is terminal, stop
             return this;
+        } else {
+            return this.left.leftMost();
         }
     }
     this.rightMost = function() {
         if (this.right instanceof Terminus) {
-            // if right is not falsey, keep going
-            return this.right.rightMost();
-        } else {
+            // if right is terminal, stop
             return this;
+        } else {
+            return this.right.rightMost();
         }
     }
 
@@ -210,7 +217,7 @@ function World() {
 
     this.bigBang = function() {
         // Begin ticking the world
-        for (t = 3600; t > 0; t--) {
+        for (t = 360; t > 0; t--) {
             this.tick();
             console.log(t,this);
         }
@@ -220,7 +227,6 @@ function World() {
 // Run the model
 
 mbta = new World();
-console.log(mbta.line);
 mbta.addToRoute(new Track(1000));
 mbta.addToRoute(new Station());
 mbta.generateTrains(1);
