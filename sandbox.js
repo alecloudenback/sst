@@ -133,21 +133,19 @@ function RouteSegment(here, left, right) {
     }
 
     this.leftMost = function() {
-        if (this instanceof Terminus && this.right) {
-            // segment is a terminus and has something to right -> is leftmost
-            return this;
-        } else {
-            // segment is not terminus and should look leftward
+        if (this.left) {
+            // if left is not falsey, keep going
             return this.left.leftMost();
+        } else {
+            return this;
         }
     }
     this.rightMost = function() {
-        if (this instanceof Terminus && this.left) {
-            // segment is a terminus and has something to right -> is leftmost
-            return this;
+        if (this.right) {
+            // if right is not falsey, keep going
+            return this.right.rightMost();
         } else {
-            // segment is not terminus and should look leftward
-            return this.left.rightMost();
+            return this;
         }
     }
 }
