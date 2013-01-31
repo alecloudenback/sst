@@ -28,15 +28,15 @@ function Passenger() {
 }
 
 // Train
-function Train(curSeg, headingLeft) {
+function Train(startSeg, headingLeft) {
     stationWaitTime = 90; // the default time to wait at a station, in seconds
 
     this.speed = 80000; // in meters/hour
     this.headingLeft = headingLeft;
-    this.currentSegment = curSeg;
+    this.currentSegment = startSeg;
     this.distanceOnTrack = 0;
     this.timeInStation = stationWaitTime; // start with 90 seconds in station
-    this.nextSegment - function() {
+    this.nextSegment = function() {
         if (this.headingLeft) {
             return this.currentSegment.left;
         } else {
@@ -45,7 +45,8 @@ function Train(curSeg, headingLeft) {
     }
     this.capacity = 500;
     this.tick = function() {
-        if (this.currentSegment instanceof Station ) {
+        console.log("train on ", this.currentSegment, " traveling to ", this.nextSegment());
+        if (this.currentSegment.kind instanceof Station ) {
         // if in station, continue station procedures
         this.stationProcedures();
         } else {
@@ -68,19 +69,19 @@ function Train(curSeg, headingLeft) {
     }
 
     this.travel = function() {
-        console.log("train on ", this.currentSegment, " traveling to ", this.nextSegment);
+        console.log("train on ", this.currentSegment, " traveling to ", this.nextSegment());
         if (this.currentSegment.left.hasTrain) {
                 // Don't proceed
             } else if (this.currentSegment instanceof Terminus) {
                 // switch directions
                 this.headingLeft = !this.headingLeft;
-            } else if (this.currentSegment instanceof Track) {
-                if (this.currentSegment.length - this.speed / 60 / 60 < 0) {
+            } else if (this.currentSegment.kind instanceof Track) {
+                if (this.currentSegment.kind.length - this.speed / 60 / 60 < 0) {
                     this.currentSegment.trainExit();
                     this.currentSegment = this.nextSegment();
                 }
                 this.distanceOnTrack += this.distanceOnTrack + this.speed / 60 / 60;
-            } else if (this.currentSegment instanceof Station) {
+            } else if (this.currentSegment.kind instanceof Station) {
                 // leave station
                 this.currentSegment = this.nextSegment();
             } else {
@@ -116,6 +117,7 @@ function RouteSegment(here, left, right) {
     this.hasTrain = false;
     this.left = left;
     this.right = right;
+    this.kind = this.here;
 
     // insertSegment(RouteSegment)
     // Insert a RouteSegment, seg, to the left of the leftmost location
@@ -133,7 +135,7 @@ function RouteSegment(here, left, right) {
     }
 
     this.leftMost = function() {
-        if (this.left) {
+        if (this.left instanceof Terminus) {
             // if left is not falsey, keep going
             return this.left.leftMost();
         } else {
@@ -141,11 +143,20 @@ function RouteSegment(here, left, right) {
         }
     }
     this.rightMost = function() {
-        if (this.right) {
+        if (this.right instanceof Terminus) {
             // if right is not falsey, keep going
             return this.right.rightMost();
         } else {
             return this;
+        }
+    }
+
+    this.isTerminus = function() {
+        if (this.leftMost() === this || this.rightMost() === this) {
+            // station is Terminus
+            return true;
+        } else {
+            return false;
         }
     }
 }
@@ -162,18 +173,19 @@ function Station() {
     this.leftPlatform = new Platform();
     this.rightPlatform = new Platform();
 }
-// Terminus
-// A terminus is a where the train switches direction and is a subclass of Station
-function Terminus() {
- this.prototype = Station;
-}
 
+// Terminus
+// A Terminus is a the area past the last station on a side
+function Terminus() {
+
+}
 
 // World
 // A place to keep track of all of the objects
 function World() {
     this.passengers = [];
-    this.line = new RouteSegment(new Platform(),new Terminus(),new Terminus());
+    // A World starts with a Station
+    this.line = new RouteSegment(new Station(),new Terminus(),new Terminus());
     this.trains = [];
     this.tickCount = 0;
     this.tick = function() {
@@ -187,9 +199,9 @@ function World() {
             this.passengers.push(new Passenger());
         }
     }
-    this.generateTrains = function(num) {
-        for (i = num; i > 0; i--) {
-            this.trains.push(new Train());
+    this.generateTrains = function(numleft, numright) {
+        for (i = numleft; i > 0; i--) {
+            this.trains.push(new Train(this.line.leftMost(),false));
         }
     }
     this.addToRoute = function(location) {
@@ -198,8 +210,9 @@ function World() {
 
     this.bigBang = function() {
         // Begin ticking the world
-        for (i = 3600; i > 0; i--) {
+        for (t = 3600; t > 0; t--) {
             this.tick();
+            console.log(t,this);
         }
     }
 }
@@ -207,8 +220,8 @@ function World() {
 // Run the model
 
 mbta = new World();
+console.log(mbta.line);
 mbta.addToRoute(new Track(1000));
 mbta.addToRoute(new Station());
 mbta.generateTrains(1);
-console.log(mbta.trains);
 mbta.bigBang();
