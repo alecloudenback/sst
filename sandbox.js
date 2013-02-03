@@ -113,8 +113,35 @@ function Clock(mu, sigma) {
 }
 
 function Route(leftMost, rightMost) {
+    //both should be stations
     this.leftMost = leftMost;
     this.rightMost = rightMost;
+
+    // insertAfter(RouteSegment, RouteSegment )
+    // Insert a RouteSegment, seg, to the left of the leftmost location
+    this.insertAfter = function(seg, newSeg) {
+        newSeg.left = seg;
+        newSeg.right = seg.right;
+
+        if (seg.right instanceof Terminus) {
+            this.rightMost = newSeg;
+        } else {
+            seg.right.left = newSeg;
+        }
+    }
+
+    // insertAfter(RouteSegment, RouteSegment )
+    // Insert a RouteSegment, seg, to the left of the leftmost location
+    this.insertBefore = function(seg, newSeg) {
+        newSeg.left = seg.left;
+        newSeg.right = seg;
+
+        if (seg.left instanceof Terminus) {
+            this.leftMost = newSeg;
+        } else {
+            seg.left.right = newSeg;
+        }
+    }
 }
 
 // Route
@@ -122,16 +149,10 @@ function Route(leftMost, rightMost) {
 function RouteSegment(here, left, right) {
     this.here = here; // The first here should be a platform
     this.hasTrain = false;
-    this.left = left;
-    this.right = right;
+    this.left = left || new Terminus(); // set as terminus if not provided
+    this.right = right || new Terminus(); // set as terminus if not provided
     this.kind = this.here;
 
-    // insertSegment(RouteSegment)
-    // Insert a RouteSegment, seg, to the left of the leftmost location
-    this.insertSegment = function(type) {
-        oldleft = this.left;
-        this.left = new RouteSegment(type,oldleft,this);
-    }
 
     this.trainEnter = function() {
         this.hasTrain = true;
@@ -183,6 +204,7 @@ function Station() {
 
 // Terminus
 // A Terminus is a the area past the last station on a side
+// Functions as 'null'
 function Terminus() {
 
 }
@@ -192,7 +214,7 @@ function Terminus() {
 function World() {
     this.passengers = [];
     // A World starts with a Station
-    this.line = new RouteSegment(new Station(),new Terminus(),new Terminus());
+    this.line = new Route(new Station(),new Station());
     this.trains = [];
     this.tickCount = 0;
     this.tick = function() {
@@ -211,8 +233,8 @@ function World() {
             this.trains.push(new Train(this.line.leftMost(),false));
         }
     }
-    this.addToRoute = function(location) {
-        this.line.insertSegment(location);
+    this.insertAfterFirstStation = function(loc) {
+        this.line.insertAfter(mbta.line.leftMost, new RouteSegment(loc));
     }
 
     this.bigBang = function() {
@@ -227,7 +249,6 @@ function World() {
 // Run the model
 
 mbta = new World();
-mbta.addToRoute(new Track(1000));
-mbta.addToRoute(new Station());
+mbta.insertAfterFirstStation(new Track(1000));
 mbta.generateTrains(1);
 mbta.bigBang();
