@@ -283,14 +283,11 @@ mbta = new World();
 
 // build the route right to left
 mbta.line.insertBeginning(new RouteSegment(new Station()));
-mbta.line.printRoute();
 mbta.line.insertBeginning(new RouteSegment(new Track(1000)));
-mbta.line.printRoute();
 mbta.line.insertBeginning(new RouteSegment(new Station()));
-mbta.line.printRoute();
-// console.log(mbta.line);
-// mbta.insertAfterFirstStation(new Station());
-// console.log(mbta.line);
-// mbta.generateTrains(1);
-// mbta.line.printRoute();
-// mbta.bigBang();
+
+// generate trains
+mbta.generateTrains(1);
+
+// begin simulation
+mbta.bigBang();
