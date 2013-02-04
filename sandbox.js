@@ -29,7 +29,7 @@ function Passenger() {
 
 // Train
 function Train(startSeg, headingLeft) {
-    stationWaitTime = 90; // the default time to wait at a station, in seconds
+    stationWaitTime = 5; // the default time to wait at a station, in seconds
 
     this.speed = 80000; // in meters/hour
     this.headingLeft = headingLeft;
@@ -69,15 +69,15 @@ function Train(startSeg, headingLeft) {
     }
 
     this.travel = function() {
-        console.log("train on ", this.currentSegment, " traveling to ", this.nextSegment());
+        console.log("train on ", this.currentSegment, " traveling to ", this.nextSegment(), " with ", this.currentSegment.kind.length - this.distanceOnTrack, "m to go.");
         if (this.nextSegment().hasTrain) {
                 // Don't proceed
             } else if (this.currentSegment.kind instanceof Track) {
-                if (this.currentSegment.kind.length - this.speed / 60 / 60 < 0) {
+                if (((this.currentSegment.kind.length - this.distanceOnTrack) - this.speed / 60 / 60) < 0) {
                     this.currentSegment.trainExit();
                     this.currentSegment = this.nextSegment();
                 }
-                this.distanceOnTrack += this.distanceOnTrack + this.speed / 60 / 60;
+                this.distanceOnTrack +=  this.speed / 60 / 60;
             } else if (this.currentSegment.kind instanceof Station) {
                 // leave station
                 this.currentSegment = this.nextSegment();
@@ -269,9 +269,9 @@ function World() {
 
     this.bigBang = function() {
         // Begin ticking the world
-        for (t = 360; t > 0; t--) {
+        for (t = 90; t > 0; t--) {
             this.tick();
-            console.log(t,this);
+            // console.log(t,this);
         }
     }
 }
