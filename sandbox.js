@@ -138,8 +138,41 @@ function Route(leftMost, rightMost) {
 
         if (seg.left instanceof Terminus) {
             this.leftMost = newSeg;
+            seg.left = newSeg;
         } else {
             seg.left.right = newSeg;
+        }
+    }
+
+    // insertBeginning(first node)
+    // Insert the first item into the Route
+    this.insertBeginning = function(newSeg) {
+        if (this.leftMost instanceof Terminus || !this.leftMost) {
+            this.leftMost = newSeg;
+            this.rightMost = newSeg;
+            newSeg.left = new Terminus();
+            newSeg.right = new Terminus();
+        } else {
+            this.insertBefore(this.leftMost,newSeg);
+        }
+    }
+
+    // print route
+    this.printRoute = function() {
+        // print left to right
+        console.log("-------- left to right ----");
+        cur = this.leftMost;
+        while (!(cur instanceof Terminus) || !cur) {
+            console.log(cur.kind);
+            cur = cur.right;
+        }
+        console.log("------- right to left ----");
+
+        // print right to left
+        cur = this.rightMost;
+        while (!(cur instanceof Terminus) || !cur) {
+            console.log(cur.kind);
+            cur = cur.left;
         }
     }
 }
@@ -214,7 +247,7 @@ function Terminus() {
 function World() {
     this.passengers = [];
     // A World starts with a Station
-    this.line = new Route(new Station(),new Station());
+    this.line = new Route();
     this.trains = [];
     this.tickCount = 0;
     this.tick = function() {
@@ -230,11 +263,8 @@ function World() {
     }
     this.generateTrains = function(numleft, numright) {
         for (i = numleft; i > 0; i--) {
-            this.trains.push(new Train(this.line.leftMost(),false));
+            this.trains.push(new Train(this.line.leftMost,false));
         }
-    }
-    this.insertAfterFirstStation = function(loc) {
-        this.line.insertAfter(mbta.line.leftMost, new RouteSegment(loc));
     }
 
     this.bigBang = function() {
@@ -249,6 +279,18 @@ function World() {
 // Run the model
 
 mbta = new World();
-mbta.insertAfterFirstStation(new Track(1000));
-mbta.generateTrains(1);
-mbta.bigBang();
+
+
+// build the route right to left
+mbta.line.insertBeginning(new RouteSegment(new Station()));
+mbta.line.printRoute();
+mbta.line.insertBeginning(new RouteSegment(new Track(1000)));
+mbta.line.printRoute();
+mbta.line.insertBeginning(new RouteSegment(new Station()));
+mbta.line.printRoute();
+// console.log(mbta.line);
+// mbta.insertAfterFirstStation(new Station());
+// console.log(mbta.line);
+// mbta.generateTrains(1);
+// mbta.line.printRoute();
+// mbta.bigBang();
