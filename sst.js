@@ -8,42 +8,76 @@ function Platform(name) {
     this.pop = function() {
         return this.queue.pop();
     };
+
+    this.board = function(train) {
+        // make the passengers board the given train
+    }
 }
 
-// passenger
+// Passenger
 function Passenger() {
-    this.destination = "";
-    this.waiting = false;
+    this.destination = null; // to be set immediately upon creation and upon disembarking train
+
     this.countDown = 0;
     this.Clock = new Clock();
     this.enter = function(place) {
         if (place instanceof Platform) {
             place.push(this);
         } else if (place instanceof Train) {
-
+            // Decide where to get off next
         } else {
             // error
+            console.log("Error in passenger entering place.")
         }
+    }
+
+    this.gettingOff = function(Station) {
+        // eventually could decide if this is the station they want to get off at
+        // for now, return true each time
+        return true;
+    }
+
+    this.readyToBoard = function(Train) {
+        // eventually could depend on if the
+    }
+
+    // setDestination([]Stations, Station)
+    this.setDestination(stations, currentStation) {
+
+        // genearte a number between 0 and the length of the stations
+        var j = Math.floor(Math.random()* (stations.length -1));
+        while (stations[j] === currentStation) {
+            // the chosen station is the same, so try again
+            j = Math.floor(Math.random()* (stations.length -1));
+        }
+
+        // set this passengers destination
+        this.destination = stations[j];
+
     }
 }
 
 // Train
-function Train(startSeg, headingLeft) {
-    stationWaitTime = 5; // the default time to wait at a station, in seconds
+function Train(startSeg, leftBound) {
 
+    this.passengers = []; // an array to hold the passengers on the train
+
+    stationWaitTime = 5; // the default time to wait at a station, in seconds
     this.speed = 80000; // in meters/hour
-    this.headingLeft = headingLeft;
+    this.capacity = 500;
+
+
+    this.leftBound = leftBound;
     this.currentSegment = startSeg;
     this.distanceOnTrack = 0;
     this.timeInStation = stationWaitTime; // start with 90 seconds in station
     this.nextSegment = function() {
-        if (this.headingLeft) {
+        if (this.leftBound) {
             return this.currentSegment.left;
         } else {
             return this.currentSegment.right;
         }
     }
-    this.capacity = 500;
     this.tick = function() {
         if (this.currentSegment.kind instanceof Station ) {
         // if in station, continue station procedures
@@ -55,9 +89,28 @@ function Train(startSeg, headingLeft) {
 
     }
 
+    // return array of the passengers that are getting off
+    this.disembark = function(station) {
+        exitingPassengers = [];
+        remainingPassengers = [];
+
+        // put passengers in their appropriate place
+        for (i = this.passengers.length - 1; i >=0) {
+            if (this.passengers[i].gettingOff(station)) {
+                exitingPassengers.push(this.passengers[i]);
+            } else {
+                remainingPassengers.push(this.passengers[i]);
+            }
+        }
+
+        // set those still on the train as the remaining passengers
+        this.passengers = remainingPassengers;
+        return exitingPassengers;
+    }
+
 
     this.stationProcedures = function() {
-        console.log("train in ", this.currentSegment, " for ", this.timeInStation, " more ticks before going to", this.nextSegment());
+        //console.log("train in ", this.currentSegment, " for ", this.timeInStation, " more ticks before going to", this.nextSegment());
         if (this.timeInStation === 0) {
             this.timeInStation = stationWaitTime;
             this.distanceOnTrack = 0;
@@ -69,7 +122,7 @@ function Train(startSeg, headingLeft) {
     }
 
     this.travel = function() {
-        console.log("train on ", this.currentSegment, " traveling to ", this.nextSegment(), " with ", this.currentSegment.kind.length - this.distanceOnTrack, "m to go.");
+        //console.log("train on ", this.currentSegment, " traveling to ", this.nextSegment(), " with ", this.currentSegment.kind.length - this.distanceOnTrack, "m to go.");
         if (this.nextSegment().hasTrain) {
                 // Don't proceed
             } else if (this.currentSegment.kind instanceof Track) {
@@ -87,7 +140,7 @@ function Train(startSeg, headingLeft) {
 
             if (this.nextSegment() instanceof Terminus) {
                 // switch directions
-                this.headingLeft = !this.headingLeft;
+                this.leftBound = !this.leftBound;
             }
         }
 
@@ -231,8 +284,55 @@ function Track(len) {
 // Station
 // A Station is where passengers may board and exit the train
 function Station() {
-    this.leftPlatform = new Platform();
-    this.rightPlatform = new Platform();
+    this.outsidePassengers = []; // An array to hold passengers before they are ready to get back onto train
+    this.leftBoundPlatform = new Platform();
+    this.rightBoundPlatform = new Platform();
+
+    // arrive takes a train and initiates procedures to make passengers get off and board the train
+    this.arrive = function(train) {
+
+        // disembark passengers off train into the outside of this station
+        ////////////////
+
+        passengers = train.disembark(this); // An array of the passengers exiting
+
+        for (i = passengers.length - 1; i >= 0; i--) {
+            // make each passenger go outside
+            this.outsidePassengers.push(passengers[i]);
+        }
+
+        // see if there are passengers ready to enter queue to board from outsidePassengers
+        //////////////
+
+        passengersStaying = [];
+        passengersReady = [];
+
+        for (i = outsidePassengers.length- 1; i >= 0; i--) {
+            if (outsidePassengers[i].readyToBoard(train)) {
+                //decision to wait depends on if the train is going to right direction
+                passengersReady.push(outsidePassengers[i]);
+            } else {
+                passengersStaying.push(outsidePassengers[i]);
+            }
+        }
+
+
+        for (i = passengersReady.length - 1; i >= 0; i--) {
+
+        }
+
+        // make passengers waiting on platform board train
+        /////////////
+
+
+        if (train.leftBound) {
+            // board passengers on leftBound Platform
+            this.leftBoundPlatform.board(train);
+        } else {
+            // //board passengers on rightBound Platform
+            this.rightBoundPlatform.board(train);
+        }
+    }
 }
 
 // Terminus
@@ -257,8 +357,22 @@ function World() {
         }
     }
     this.generatePassengers = function(num) {
+
+        //create passengers
         for (i = num; i > 0; i--) {
             this.passengers.push(new Passenger());
+        }
+
+        // assign passengers to  a platform
+
+        for (i = this.passengers.length -1 ; i >= 0; i--) {
+            if (i % 2 === 0) {
+                // insert on rightmost station going left
+            this.passengers[i].enter(this.line.rightMost().leftBoundPlatform);
+            } else {
+                // insert on leftmost station going right
+            this.passengers[i].enter(this.line.leftMost().rightBoundPlatform);
+            }
         }
     }
     this.generateTrains = function(numleft, numright) {
