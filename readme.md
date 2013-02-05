@@ -57,6 +57,12 @@ This is the variables being principally investigated, i.e. the project seeks to 
 -   Number of passengers on platforms (waiting)
 
 
+Implementation questions
+------------------------
+
+Should passengers behave randomly or deterministically?
+
+
 To-Do
 -----
 

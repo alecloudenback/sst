@@ -366,12 +366,7 @@ function World() {
         // assign passengers to  a platform
 
         for (i = this.passengers.length -1 ; i >= 0; i--) {
-            if (i % 2 === 0) {
-                // insert on rightmost station going left
-            this.passengers[i].enter(this.line.rightMost().leftBoundPlatform);
-            } else {
-                // insert on leftmost station going right
-            this.passengers[i].enter(this.line.leftMost().rightBoundPlatform);
+
             }
         }
     }
