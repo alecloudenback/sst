@@ -57,3 +57,10 @@ This is the variables being principally investigated, i.e. the project seeks to 
 -   Number of passengers on platforms (waiting)
 
 
+To-Do
+-----
+
+-   Add passenger queues and loading
+-   Make data display on page instead of console (use D3?)
+-   Add ability to export/save data
+-   Add ability to move over range of inputs
