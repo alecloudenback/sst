@@ -60,7 +60,7 @@ This is the variables being principally investigated, i.e. the project seeks to 
 Implementation questions
 ------------------------
 
-Should passengers behave randomly or deterministically?
+Should passengers behave randomly or deterministically? If randomly, set and store a random seed each run for reproducibility.
 
 
 To-Do
