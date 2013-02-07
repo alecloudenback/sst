@@ -34,8 +34,7 @@ Model Components
 -   Tracks destination (random destination [residential <-> work]?)
 -   Tracks time waiting on platform
 -   Tracks time until reaching destination
--   Get back on from station they got off
--   Arrive according to some (random?) function
+-   Arrive according to a time-dependent Poisson process
 
 **Stations**
 
@@ -55,7 +54,7 @@ This is the variables being principally investigated, i.e. the project seeks to 
 -   Total passenger trip time
 -   Median passenger trip time
 -   Number of passengers on platforms (waiting)
-
+-   Headway distribution
 
 Implementation questions
 ------------------------
