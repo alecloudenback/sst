@@ -430,16 +430,16 @@ this.bigBang = function() {
 
 // Run the model
 
-mbta = new World();
+sst = new World();
 
 
 // build the route right to left
-mbta.line.insertBeginning(new RouteSegment(new Station()));
-mbta.line.insertBeginning(new RouteSegment(new Track(1000)));
-mbta.line.insertBeginning(new RouteSegment(new Station()));
+sst.line.insertBeginning(new RouteSegment(new Station()));
+sst.line.insertBeginning(new RouteSegment(new Track(1000)));
+sst.line.insertBeginning(new RouteSegment(new Station()));
 
 // generate trains
-mbta.generateTrains(1);
+sst.generateTrains(1);
 
 // begin simulation
-mbta.bigBang();
+sst.bigBang();
