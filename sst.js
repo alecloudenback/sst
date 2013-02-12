@@ -9,8 +9,20 @@ function Platform(name) {
         return this.queue.pop();
     };
 
+    // make the passengers board the given train
     this.board = function(train) {
-        // make the passengers board the given train
+        // determine how many passengers can board given train
+        cap = train.passengerSpace();
+
+        // pop the fitting number of passengers off of the queue
+        boardingPassengers = [];
+        while (cap > 0) {
+            boardingPassengers.push(this.pop());
+            cap--;
+        }
+
+        // pass the boarding passengers to the train
+        train.board(boardingPassengers);
 
     }
 
@@ -73,14 +85,20 @@ function Train(startSeg, leftBound) {
     }
     this.tick = function() {
         if (this.currentSegment.kind instanceof Station ) {
-        // if in station, continue station procedures
-        this.stationProcedures();
-    } else {
-        // otherwise travel
-        this.travel();
+            // if in station, continue station procedures
+            this.stationProcedures();
+        } else {
+            // otherwise travel
+            this.travel();
+        }
+
     }
 
-}
+    // return how many more passengers can fit
+    this.passengerSpace = function() {
+        return this.capacity - this.passengers.length;
+    }
+
 
     // return array of the passengers that are getting off
     this.disembark = function(station) {
@@ -99,6 +117,15 @@ function Train(startSeg, leftBound) {
         // set those still on the train as the remaining passengers
         this.passengers = remainingPassengers;
         return exitingPassengers;
+    }
+
+    // take the passengers getting on and decide how long it will take to board them
+    this.board = function(pass) {
+        delayTime = pass.length / 2;
+
+        stationWaitTime += delayTime;
+
+        this.passengers = this.passengers.concat(pass); // add the boarding passengers to list of those already onboard
     }
 
 
@@ -295,42 +322,18 @@ function Track(len) {
 // Station
 // A Station is where passengers may board and exit the train
 function Station() {
-    this.outsidePassengers = []; // An array to hold passengers before they are ready to get back onto train
     this.leftBoundPlatform = new Platform();
     this.rightBoundPlatform = new Platform();
 
     // arrive takes a train and initiates procedures to make passengers get off and board the train
     this.arrive = function(train) {
 
-        // disembark passengers off train into the outside of this station
+        // disembark passengers off train
         ////////////////
 
         passengers = train.disembark(this); // An array of the passengers exiting
 
-        for (i = passengers.length - 1; i >= 0; i--) {
-            // make each passenger go outside
-            this.outsidePassengers.push(passengers[i]);
-        }
 
-        // see if there are passengers ready to enter queue to board from outsidePassengers
-        //////////////
-
-        passengersStaying = [];
-        passengersReady = [];
-
-        for (i = outsidePassengers.length- 1; i >= 0; i--) {
-            if (outsidePassengers[i].readyToBoard(train)) {
-                //decision to wait depends on if the train is going to right direction
-                passengersReady.push(outsidePassengers[i]);
-            } else {
-                passengersStaying.push(outsidePassengers[i]);
-            }
-        }
-
-
-        for (i = passengersReady.length - 1; i >= 0; i--) {
-
-        }
 
         // make passengers waiting on platform board train
         /////////////
