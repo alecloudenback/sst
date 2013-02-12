@@ -71,11 +71,13 @@ function Train(startSeg, leftBound) {
     this.speed = 80000; // in meters/hour
     this.capacity = 500;
 
-
     this.leftBound = leftBound;
     this.currentSegment = startSeg;
+    this.boarded = false;
     this.distanceOnTrack = 0;
-    this.timeInStation = stationWaitTime; // start with 90 seconds in station
+    this.timeInStation = stationWaitTime; // how long the train should stay in station, seperate so as to not over-write original setting
+
+
     this.nextSegment = function() {
         if (this.leftBound) {
             return this.currentSegment.left;
@@ -131,10 +133,20 @@ function Train(startSeg, leftBound) {
 
     this.stationProcedures = function() {
         console.log("train in ", this.currentSegment, " for ", this.timeInStation, " more ticks before going to", this.nextSegment());
+        if (!this.boarded) {
+            // initiate unload/unload procedure
+            this.currentSegment.arrive(this);
+
+            this.boarded = true;
+        }
+
         if (this.timeInStation === 0) {
+            // time for the train to leave the station
             this.timeInStation = stationWaitTime;
             this.distanceOnTrack = 0;
+            this.boarded = false;
             this.travel();
+
         } else {
             this.timeInStation--;
         }
@@ -375,13 +387,14 @@ function World() {
     this.tick = function() {
         //tick the world forward
 
+        // tick the stations
+        this.line.tick();
+
         // tick the trains
         for (i = this.trains.length - 1 ; i >= 0; i--) {
             this.trains[i].tick();
         }
 
-        // tick the stations
-        this.line.tick();
 
 
     }
