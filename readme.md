@@ -31,7 +31,6 @@ Model Components
 **Passengers**
 
 -   Agent-based (each passenger is modeled)
--   Tracks destination (random destination [residential <-> work]?)
 -   Tracks time waiting on platform
 -   Tracks time until reaching destination
 -   Arrive according to a time-dependent Poisson process
@@ -41,7 +40,6 @@ Model Components
 -   Trains go in both directions
 -   FIFO queue to track passengers waiting to board
 -   Variable number of stations
--   (?) Some stations are more 'work', others residential
 
 Tracking variables
 -------------------
@@ -61,11 +59,3 @@ Implementation questions
 
 Should passengers behave randomly or deterministically? If randomly, set and store a random seed each run for reproducibility.
 
-
-To-Do
------
-
--   Add passenger queues and loading
--   Make data display on page instead of console (use D3?)
--   Add ability to export/save data
--   Add ability to move over range of inputs
