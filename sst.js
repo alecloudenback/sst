@@ -13,11 +13,20 @@ function Platform(name) {
         // make the passengers board the given train
 
     }
+
+    this.tick = function() {
+        // generate passengers to enter the queue
+
+    }
+    // generatePassengers creates a number of passengers and inserts them into the queue based on the platform's Poisson process
+    this.generatePassengers = function() {
+        this.push(new Passenger());
+
+    }
 }
 
 // Passenger
 function Passenger() {
-    this.destination = null; // to be set immediately upon creation and upon disembarking train
 
     this.countDown = 0;
     this.Clock = new Clock();
@@ -38,24 +47,7 @@ function Passenger() {
         return true;
     }
 
-    this.readyToBoard = function(Train) {
-        // eventually could depend on if the
-    }
 
-    // setDestination([]Stations, Station)
-    this.setDestination = function(stations, currentStation) {
-
-        // genearte a number between 0 and the length of the stations
-        var j = Math.floor(Math.random()* (stations.length -1));
-        while (stations[j] === currentStation) {
-            // the chosen station is the same, so try again
-            j = Math.floor(Math.random()* (stations.length -1));
-        }
-
-        // set this passengers destination
-        this.destination = stations[j];
-
-    }
 }
 
 // Train
@@ -229,6 +221,15 @@ function Route(leftMost, rightMost) {
             cur = cur.left;
         }
     }
+
+    // tick the route forward in time
+    this.tick = function() {
+        cur = this.leftMost;
+        while (!(cur instanceof Terminus) || !cur) {
+            cur.tick();
+            cur = cur.right;
+        }
+    }
 }
 
 // Route
@@ -274,12 +275,21 @@ function RouteSegment(here, left, right) {
             return false;
         }
     }
+
+    // pass the tick onto this node's location
+    this.tick = function() {
+        this.here.tick();
+    }
 }
 
 // Track
 // A track is a distance that the train must travel in between stations
 function Track(len) {
     this.length = len;
+
+    this.tick = function() {
+        // do nothing
+    }
 }
 
 // Station
@@ -334,6 +344,14 @@ function Station() {
             this.rightBoundPlatform.board(train);
         }
     }
+
+    this.tick = function() {
+
+        // tick each platform
+        this.leftBoundPlatform.tick();
+        this.rightBoundPlatform.tick();
+    }
+
 }
 
 // Terminus
@@ -353,9 +371,16 @@ function World() {
     this.tickCount = 0;
     this.tick = function() {
         //tick the world forward
+
+        // tick the trains
         for (i = this.trains.length - 1 ; i >= 0; i--) {
             this.trains[i].tick();
         }
+
+        // tick the stations
+        this.line.tick();
+
+
     }
     this.generatePassengers = function(num) {
 
