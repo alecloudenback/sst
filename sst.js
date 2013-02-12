@@ -16,7 +16,7 @@ function Platform(name) {
 
         // pop the fitting number of passengers off of the queue
         boardingPassengers = [];
-        while (cap > 0) {
+        while (cap > 0 && this.queue.length > 0) {
             boardingPassengers.push(this.pop());
             cap--;
         }
@@ -28,6 +28,7 @@ function Platform(name) {
 
     this.tick = function() {
         // generate passengers to enter the queue
+        this.generatePassengers();
 
     }
     // generatePassengers creates a number of passengers and inserts them into the queue based on the platform's Poisson process
@@ -135,12 +136,12 @@ function Train(startSeg, leftBound) {
         console.log("train in ", this.currentSegment, " for ", this.timeInStation, " more ticks before going to", this.nextSegment());
         if (!this.boarded) {
             // initiate unload/unload procedure
-            this.currentSegment.arrive(this);
+            this.currentSegment.here.arrive(this);
 
             this.boarded = true;
         }
 
-        if (this.timeInStation === 0) {
+        if (this.timeInStation < 0) {
             // time for the train to leave the station
             this.timeInStation = stationWaitTime;
             this.distanceOnTrack = 0;
