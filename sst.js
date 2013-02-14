@@ -30,7 +30,6 @@ function Platform(station, leftBound) {
     this.tick = function() {
         // generate passengers to enter the queue
         this.generatePassengers();
-
     }
 
     // generatePassengers creates a number of passengers and inserts them into the queue based on the platform's Poisson process
@@ -443,6 +442,7 @@ this.bigBang = function() {
         // Begin ticking the world
         for (t = 90; t >= 0; t--) {
             this.tick();
+
             // console.log(t,this);
         }
 }
