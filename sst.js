@@ -432,25 +432,15 @@ function World() {
 
         }
     }
-this.generateTrains = function(numleft, numright) {
-    for (i = numleft; i > 0; i--) {
-        this.trains.push(new Train(this.line.leftMost,false));
-    }
-}
-
-this.bigBang = function() {
-        // Begin ticking the world
-        for (t = 90; t >= 0; t--) {
-            this.tick();
-
-            // console.log(t,this);
+    this.generateTrains = function(numleft, numright) {
+        for (i = numleft; i > 0; i--) {
+            this.trains.push(new Train(this.line.leftMost,false));
         }
-}
-}
+    }
 
+}
 
 // Run the model
-
 sst = new World();
 
 
@@ -462,5 +452,12 @@ sst.line.insertBeginning(new RouteSegment(new Station()));
 // generate trains
 sst.generateTrains(1);
 
-// begin simulation
-sst.bigBang();
+// Begin ticking the world
+for (t = 90; t >= 0; t--) {
+    sst.tick();
+
+    // console.log(t,this);
+}
+
+
+
