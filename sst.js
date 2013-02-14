@@ -1,7 +1,8 @@
 // platform
-function Platform(name) {
-    this.name = name || "";
+function Platform(station, leftBound) {
     this.queue = [];
+    this.leftBound = leftBound;
+    this.station = station;
     this.push = function(person) {
         return this.queue.push(person);
     };
@@ -31,10 +32,21 @@ function Platform(name) {
         this.generatePassengers();
 
     }
+
     // generatePassengers creates a number of passengers and inserts them into the queue based on the platform's Poisson process
     this.generatePassengers = function() {
-        this.push(new Passenger());
 
+        // if this is the last platform in a given direction, don't generate passengers
+        if (this.station.routeSeg === this.station.routeSeg.leftMost() && this.leftBound ) {
+            // platform is leftmost and is left bound
+            return;
+        } else if (this.station.routeSeg === this.station.routeSeg.rightMost() && !this.leftBound ) {
+            // platform is rightmost and is right bound
+            return;
+
+        } else {
+            this.push(new Passenger());
+        }
     }
 }
 
@@ -280,7 +292,7 @@ function RouteSegment(here, left, right) {
     this.left = left || new Terminus(); // set as terminus if not provided
     this.right = right || new Terminus(); // set as terminus if not provided
     this.kind = this.here;
-
+    here.addParentSegment(this);
 
     this.trainEnter = function() {
         this.hasTrain = true;
@@ -330,13 +342,18 @@ function Track(len) {
     this.tick = function() {
         // do nothing
     }
+
+    this.addParentSegment = function(seg) {
+        this.routeSeg = seg;
+    }
+
 }
 
 // Station
 // A Station is where passengers may board and exit the train
 function Station() {
-    this.leftBoundPlatform = new Platform();
-    this.rightBoundPlatform = new Platform();
+    this.leftBoundPlatform = new Platform(this, true);
+    this.rightBoundPlatform = new Platform(this, false);
 
     // arrive takes a train and initiates procedures to make passengers get off and board the train
     this.arrive = function(train) {
@@ -366,6 +383,10 @@ function Station() {
         // tick each platform
         this.leftBoundPlatform.tick();
         this.rightBoundPlatform.tick();
+    }
+
+    this.addParentSegment = function(seg) {
+        this.routeSeg = seg;
     }
 
 }
