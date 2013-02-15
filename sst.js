@@ -30,6 +30,21 @@ function Platform(station, leftBound) {
     this.tick = function() {
         // generate passengers to enter the queue
         this.generatePassengers();
+
+        // tick the passengers
+        for (i = this.queue.length - 1 ; i >= 0; i--) {
+            this.queue[i].tick();
+        }
+
+    }
+
+    // return array of wait times in ticks
+    this.waitTime = function() {
+        waits = [];
+        for (i = this.queue.length - 1 ; i >= 0; i--) {
+            waits.push(this.queue[i].waitTime);
+        }
+        return waits;
     }
 
     // generatePassengers creates a number of passengers and inserts them into the queue based on the platform's Poisson process
@@ -52,7 +67,7 @@ function Platform(station, leftBound) {
 // Passenger
 function Passenger() {
 
-    this.countDown = 0;
+    this.waitTime = 0;
     this.Clock = new Clock();
     this.enter = function(place) {
         if (place instanceof Platform) {
@@ -69,6 +84,10 @@ function Passenger() {
         // eventually could decide if this is the station they want to get off at
         // for now, return true each time
         return true;
+    }
+
+    this.tick = function() {
+        this.waitTime += 1;
     }
 
 
@@ -395,6 +414,21 @@ function Station() {
 // Functions as 'null'
 function Terminus() {
 
+}
+
+// Useful functions
+function sumArray(arr) {
+    sum = 0;
+    for (var i = 0, len = arr.length; i < len; i++) {
+        sum += arr[i];
+    }
+
+    return sum;
+}
+
+function meanArray(arr) {
+    sum = sumArray(arr);
+    return sum/arr.length;
 }
 
 // World
