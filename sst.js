@@ -39,7 +39,7 @@ function Platform(station, leftBound) {
     }
 
     // return array of wait times in ticks
-    this.waitTime = function() {
+    this.waitTimes = function() {
         waits = [];
         for (i = this.queue.length - 1 ; i >= 0; i--) {
             waits.push(this.queue[i].waitTime);
@@ -185,7 +185,7 @@ function Train(startSeg, leftBound) {
     }
 
     this.travel = function() {
-        console.log("train on ", this.currentSegment, " traveling to ", this.nextSegment(), " with ", this.currentSegment.kind.length - this.distanceOnTrack, "m to go.");
+        // console.log("train on ", this.currentSegment, " traveling to ", this.nextSegment(), " with ", this.currentSegment.kind.length - this.distanceOnTrack, "m to go.");
         if (this.nextSegment().hasTrain) {
                 // Don't proceed
             } else if (this.currentSegment.kind instanceof Track) {
@@ -401,6 +401,14 @@ function Station() {
         // tick each platform
         this.leftBoundPlatform.tick();
         this.rightBoundPlatform.tick();
+
+        //display queue info
+        if (this.leftBoundPlatform.queue.length > 0) {
+        console.log("Left-bound platform has ", this.leftBoundPlatform.queue.length, " passengers waiting. Average wait time is ", meanArray(this.leftBoundPlatform.waitTimes()));
+
+        } else {
+        console.log("Right-bound platform has ", this.rightBoundPlatform.queue.length, " passengers waiting. Average wait time is ", meanArray(this.rightBoundPlatform.waitTimes()));
+        }
     }
 
     this.addParentSegment = function(seg) {
