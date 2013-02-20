@@ -186,7 +186,7 @@ function Train(startSeg, leftBound) {
 
     this.travel = function() {
         // console.log("train on ", this.currentSegment, " traveling to ", this.nextSegment(), " with ", this.currentSegment.kind.length - this.distanceOnTrack, "m to go.");
-        if (this.nextSegment().hasTrain) {
+        if (this.nextSegment().hasTrain()) {
                 // Don't proceed
             } else if (this.currentSegment.kind instanceof Track) {
                 if (((this.currentSegment.kind.length - this.distanceOnTrack) - this.speed / 60 / 60) < 0) {
@@ -306,18 +306,35 @@ function Route(leftMost, rightMost) {
 // A route is one of: a RouteSegment, a Terminus
 function RouteSegment(here, left, right) {
     this.here = here; // The first here should be a platform
-    this.hasTrain = false;
+    this.hasLeftBoundTrain = false;
+    this.hasRightBoundTrain = false;
     this.left = left || new Terminus(); // set as terminus if not provided
     this.right = right || new Terminus(); // set as terminus if not provided
     this.kind = this.here;
     here.addParentSegment(this);
 
-    this.trainEnter = function() {
-        this.hasTrain = true;
+    this.trainEnter = function(left) {
+        if (left) {
+        this.hasLeftBoundTrain = true;
+        } else {
+            this.hasRightBoundTrain = true;
+        }
     }
 
-    this.trainExit = function() {
-        this.hasTrain = false;
+    this.trainExit = function(left) {
+        if (left) {
+        this.hasLeftBoundTrain = false;
+        } else {
+            this.hasRightBoundTrain = false;
+        }
+    }
+
+    this.hasTrain = function(left) {
+        if (left) {
+            return this.hasLeftBoundTrain;
+        } else {
+            return this.hasRightBoundTrain;
+        }
     }
 
     this.leftMost = function() {
