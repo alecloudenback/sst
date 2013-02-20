@@ -3,6 +3,7 @@ function Platform(station, leftBound) {
     this.queue = [];
     this.leftBound = leftBound;
     this.station = station;
+    this.tickCount = 0; // keep track to allow time-dependent passenger creation
     this.push = function(person) {
         return this.queue.push(person);
     };
@@ -35,7 +36,7 @@ function Platform(station, leftBound) {
         for (i = this.queue.length - 1 ; i >= 0; i--) {
             this.queue[i].tick();
         }
-
+        this.tickCount += 1;
     }
 
     // return array of wait times in ticks
@@ -59,7 +60,11 @@ function Platform(station, leftBound) {
             return;
 
         } else {
+            // process governing passener creation
+            if (this.tickCount % 3 === 0) {
             this.push(new Passenger());
+            }
+            return;
         }
     }
 }
@@ -154,7 +159,7 @@ function Train(startSeg, leftBound) {
 
     // take the passengers getting on and decide how long it will take to board them
     this.board = function(pass) {
-        delayTime = pass.length / 2;
+        delayTime = .0003 * pass.length^2 + 20 ; // chosen to have a baseline of 20 seconds for stop, with a max of ~1.5 minutes if 500 passengers getting on
 
         stationWaitTime += delayTime;
 
@@ -163,15 +168,20 @@ function Train(startSeg, leftBound) {
 
 
     this.stationProcedures = function() {
-        console.log("train in ", this.currentSegment, " for ", this.timeInStation, " more ticks before going to", this.nextSegment());
         if (!this.boarded) {
             // initiate unload/unload procedure
             this.currentSegment.here.arrive(this);
 
+            if (this.leftBound) {
+            direction = "left";
+            } else {
+                direction = "right";
+            }
+            console.log("train heading", direction, " with ", this.passengers.length, " passengers");
             this.boarded = true;
         }
 
-        if (this.timeInStation < 0) {
+        if (this.timeInStation < 1) {
             // time for the train to leave the station
             this.timeInStation = stationWaitTime;
             this.distanceOnTrack = 0;
@@ -514,15 +524,15 @@ sst.line.insertBeginning(new RouteSegment(new Station()));
 sst.generateTrains(1);
 
 // Begin ticking the world
-for (t = 90; t >= 0; t--) {
+for (t = 0; t <= 3600 ; t++) { //54000 is the number of seconds in a 15 hour day
     sst.tick();
 
-    // after 45 ticks, add another train
-    // if (t === 45) {
-    //     console.log("adding second train")
-    //     sst.generateTrains(1);
-    // }
+    // after 90 ticks, add another train
+    if (t === 45) {
+        console.log("adding second train")
+        sst.generateTrains(1);
+    }
 }
 
-
+document.write("simulation end.")
 
