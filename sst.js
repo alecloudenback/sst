@@ -186,17 +186,19 @@ function Train(startSeg, leftBound) {
 
     this.travel = function() {
         // console.log("train on ", this.currentSegment, " traveling to ", this.nextSegment(), " with ", this.currentSegment.kind.length - this.distanceOnTrack, "m to go.");
-        if (this.nextSegment().hasTrain()) {
+        headingLeft = this.leftBound;
+        if (this.nextSegment().hasTrain(headingLeft)) {
                 // Don't proceed
             } else if (this.currentSegment.kind instanceof Track) {
                 if (((this.currentSegment.kind.length - this.distanceOnTrack) - this.speed / 60 / 60) < 0) {
-                    this.currentSegment.trainExit();
+                    this.currentSegment.trainExit(headingLeft);
                     this.currentSegment = this.nextSegment();
                 }
                 this.distanceOnTrack +=  this.speed / 60 / 60;
             } else if (this.currentSegment.kind instanceof Station) {
                 // leave station
                 this.currentSegment = this.nextSegment();
+                this.currentSegment.trainEnter(headingLeft);
             } else {
                 console.log("Error in train routing:", this);
             }
@@ -515,7 +517,11 @@ sst.generateTrains(1);
 for (t = 90; t >= 0; t--) {
     sst.tick();
 
-    // console.log(t,this);
+    // after 45 ticks, add another train
+    // if (t === 45) {
+    //     console.log("adding second train")
+    //     sst.generateTrains(1);
+    // }
 }
 
 
