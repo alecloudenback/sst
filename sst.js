@@ -468,6 +468,10 @@ function meanArray(arr) {
     return sum/arr.length;
 }
 
+function progress(percent)
+{
+     $("#progressbar").progressbar({value: Math.round((percent*100))});
+}
 // World
 // A place to keep track of all of the objects
 function World() {
@@ -524,15 +528,26 @@ sst.line.insertBeginning(new RouteSegment(new Station()));
 sst.generateTrains(1);
 
 // Begin ticking the world
-for (t = 0; t <= 3600 ; t++) { //54000 is the number of seconds in a 15 hour day
+totalTicks = 54000;
+
+for (t = 0; t <= totalTicks ; t++) { //54000 is the number of seconds in a 15 hour day
+
+    //update progress
+    progress(t/totalTicks);
+    // $(function() {
+    //     $( "#percent" ).text( Math.round(t/totalTicks * 100));
+    // });
+
+    //tick the world forward
     sst.tick();
 
+    // Time dependent behaviors
+    /////////////////////////////
     // after 90 ticks, add another train
     if (t === 45) {
-        console.log("adding second train")
+        console.log("adding second train");
         sst.generateTrains(1);
     }
 }
 
-document.write("simulation end.")
 
