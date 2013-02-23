@@ -177,7 +177,7 @@ function Train(startSeg, leftBound) {
             } else {
                 direction = "right";
             }
-            console.log("train heading", direction, " with ", this.passengers.length, " passengers");
+            // console.log("train heading", direction, " with ", this.passengers.length, " passengers");
             this.boarded = true;
         }
 
@@ -433,10 +433,10 @@ function Station() {
 
         //display queue info
         if (this.leftBoundPlatform.queue.length > 0) {
-        console.log("Left-bound platform has ", this.leftBoundPlatform.queue.length, " passengers waiting. Average wait time is ", meanArray(this.leftBoundPlatform.waitTimes()));
+        // console.log("Left-bound platform has ", this.leftBoundPlatform.queue.length, " passengers waiting. Average wait time is ", meanArray(this.leftBoundPlatform.waitTimes()));
 
         } else {
-        console.log("Right-bound platform has ", this.rightBoundPlatform.queue.length, " passengers waiting. Average wait time is ", meanArray(this.rightBoundPlatform.waitTimes()));
+        // console.log("Right-bound platform has ", this.rightBoundPlatform.queue.length, " passengers waiting. Average wait time is ", meanArray(this.rightBoundPlatform.waitTimes()));
         }
     }
 
@@ -516,8 +516,9 @@ function World() {
 
 }
 
+
 // Run the model
-$(document).ready(function(){
+getSimulationData = function(){
 
 
     sst = new World();
@@ -532,23 +533,35 @@ $(document).ready(function(){
     sst.generateTrains(1);
 
     // Begin ticking the world
-    totalTicks = 20 * 60 * 60;
+    totalTicks = 1 * 60 * 60;
 
-    for (t = 0; t <= totalTicks ; t++) {
+    // set up data container
+    data = {
+    LBWaitTimes : [],
+    RBWaitTimes : []
+    }
 
+    for (t = 0; t < totalTicks ; t++) {
 
         //tick the world forward
         sst.tick();
+
+        // collect data
+        ////////////////////////////
+
+        data.LBWaitTimes.push(meanArray(sst.line.rightMost.here.leftBoundPlatform.waitTimes()));
+        data.RBWaitTimes.push(meanArray(sst.line.leftMost.here.rightBoundPlatform.waitTimes()));
+
 
         // Time dependent behaviors
         /////////////////////////////
 
         // after 90 ticks, add another train
         if (t === 45) {
-            console.log("adding second train");
             sst.generateTrains(1);
         }
 
     }
-});
+    document.write("simulation complete.")
+};
 
