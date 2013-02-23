@@ -562,6 +562,9 @@ getSimulationData = function(){
         }
 
     }
-    document.write("simulation complete.")
+    document.write("simulation complete.");
+
+    return data;
+
 };
 
