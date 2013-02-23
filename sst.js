@@ -472,6 +472,7 @@ function progress(percent)
 {
      $("#progressbar").progressbar({value: Math.round((percent*100))});
 }
+
 // World
 // A place to keep track of all of the objects
 function World() {
@@ -516,38 +517,38 @@ function World() {
 }
 
 // Run the model
-sst = new World();
+$(document).ready(function(){
 
 
-// build the route right to left
-sst.line.insertBeginning(new RouteSegment(new Station()));
-sst.line.insertBeginning(new RouteSegment(new Track(1000)));
-sst.line.insertBeginning(new RouteSegment(new Station()));
+    sst = new World();
 
-// generate trains
-sst.generateTrains(1);
 
-// Begin ticking the world
-totalTicks = 54000;
+    // build the route right to left
+    sst.line.insertBeginning(new RouteSegment(new Station()));
+    sst.line.insertBeginning(new RouteSegment(new Track(1000)));
+    sst.line.insertBeginning(new RouteSegment(new Station()));
 
-for (t = 0; t <= totalTicks ; t++) { //54000 is the number of seconds in a 15 hour day
+    // generate trains
+    sst.generateTrains(1);
 
-    //update progress
-    progress(t/totalTicks);
-    // $(function() {
-    //     $( "#percent" ).text( Math.round(t/totalTicks * 100));
-    // });
+    // Begin ticking the world
+    totalTicks = 20 * 60 * 60;
 
-    //tick the world forward
-    sst.tick();
+    for (t = 0; t <= totalTicks ; t++) {
 
-    // Time dependent behaviors
-    /////////////////////////////
-    // after 90 ticks, add another train
-    if (t === 45) {
-        console.log("adding second train");
-        sst.generateTrains(1);
+
+        //tick the world forward
+        sst.tick();
+
+        // Time dependent behaviors
+        /////////////////////////////
+
+        // after 90 ticks, add another train
+        if (t === 45) {
+            console.log("adding second train");
+            sst.generateTrains(1);
+        }
+
     }
-}
-
+});
 
