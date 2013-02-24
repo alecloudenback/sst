@@ -1,5 +1,5 @@
-var margin = {top: 20, right: 20, bottom: 30, left: 50};
-var width = 960 - margin.left - margin.right,
+var margin = {top: 20, right: 60, bottom: 30, left: 50};
+var width = 980 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
 var svg = d3.select('body').append('svg')
@@ -68,14 +68,21 @@ function drawData() {
                         .enter().append('g')
                         .attr('class', 'waitTime');
 
-    pathDesc = function(d) {return line(d.values)};
-
     waitTime.append('path')
         .attr({
           'class': 'line',
-          'd': pathDesc,
+          'd': function(d) {return line(d.values)},
         })
         .style('stroke', function(d) {return color(d.name);});
+
+    waitTime.append('text')
+        .datum(function(d,i) {return {name: d.name, value: d.values[d.values.length - 1], index: d.values.length};})
+        .attr({
+            'transform': function(d) {return 'translate(' + xScale(d.index) + ',' + yScale(d.value) + ')'},
+            'x': 3,
+            'dy': '.35em',
+        })
+        .text(function(d) {return d.name;});
 }
 
 drawData();
