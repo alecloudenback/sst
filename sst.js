@@ -33,7 +33,7 @@ function Platform(station, leftBound) {
         this.generatePassengers();
 
         // tick the passengers
-        for (i = this.queue.length - 1 ; i >= 0; i--) {
+        for (i = 0, len = this.queue.length; i < len; i++) {
             this.queue[i].tick();
         }
         this.tickCount += 1;
@@ -44,6 +44,9 @@ function Platform(station, leftBound) {
         waits = [];
         for (i = this.queue.length - 1 ; i >= 0; i--) {
             waits.push(this.queue[i].waitTime);
+        }
+        if (waits.length === 0) {
+            waits.push(0); // return wait of 0 if no passengers
         }
         return waits;
     }
@@ -518,7 +521,7 @@ function World() {
 
 
 // Run the model
-getSimulationData = function(){
+getSimulationData = function(hours){
 
 
     sst = new World();
@@ -533,7 +536,7 @@ getSimulationData = function(){
     sst.generateTrains(1);
 
     // Begin ticking the world
-    totalTicks = 1 * 60 * 60;
+    totalTicks = hours * 60 * 60;
 
     // set up data container
     data = {
@@ -562,7 +565,6 @@ getSimulationData = function(){
         }
 
     }
-    document.write("simulation complete.");
 
     return data;
 
