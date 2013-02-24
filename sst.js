@@ -577,9 +577,9 @@ getSimulationData = function(hours){
         /////////////////////////////
 
         // after 90 ticks, add another train
-        if (t === 45) {
-            sst.generateTrains(1);
-        }
+        // if (t === 45) {
+            // sst.generateTrains(1);
+        // }
 
     }
 
