@@ -26,7 +26,7 @@ var line = d3.svg.line()
 
 function drawData() {
     // get data from sst
-    data = getSimulationData(21).LBWaitTimes;
+    data = getSimulationData(21).leftBound.waitTimes;
     xScale.domain(d3.extent(data, function(d,i) { return i;}));
     yScale.domain(d3.extent(data));
 

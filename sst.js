@@ -4,6 +4,7 @@ function Platform(station, leftBound) {
     this.leftBound = leftBound;
     this.station = station;
     this.tickCount = 0; // keep track to allow time-dependent passenger creation
+    this.waitTimes = []; // array of current time spent waiting
     this.push = function(person) {
         return this.queue.push(person);
     };
@@ -32,24 +33,31 @@ function Platform(station, leftBound) {
         // generate passengers to enter the queue
         this.generatePassengers();
 
+        //reset wait times
+        this.waitTimes = [];
+
         // tick the passengers
         for (i = 0, len = this.queue.length; i < len; i++) {
             this.queue[i].tick();
+            this.waitTimes.push(this.queue[i].waitTime);
+        }
+        if (len === 0) {
+            this.waitTimes.push(0); // return wait of 0 if no passengers
         }
         this.tickCount += 1;
     }
 
-    // return array of wait times in ticks
-    this.waitTimes = function() {
-        waits = [];
-        for (i = this.queue.length - 1 ; i >= 0; i--) {
-            waits.push(this.queue[i].waitTime);
-        }
-        if (waits.length === 0) {
-            waits.push(0); // return wait of 0 if no passengers
-        }
-        return waits;
-    }
+    // // return array of wait times in ticks
+    // this.waitTimes = function() {
+    //     waits = [];
+    //     for (i = this.queue.length - 1, len = ; i >= 0; i--) {
+    //         waits.push(this.queue[i].waitTime);
+    //     }
+    //     if (waits.length === 0) {
+    //         waits.push(0); // return wait of 0 if no passengers
+    //     }
+    //     return waits;
+    // }
 
     // generatePassengers creates a number of passengers and inserts them into the queue based on the platform's Poisson process
     this.generatePassengers = function() {
@@ -65,7 +73,7 @@ function Platform(station, leftBound) {
         } else {
             // process governing passener creation
             if (this.tickCount % 3 === 0) {
-            this.push(new Passenger());
+                this.push(new Passenger());
             }
             return;
         }
@@ -176,7 +184,7 @@ function Train(startSeg, leftBound) {
             this.currentSegment.here.arrive(this);
 
             if (this.leftBound) {
-            direction = "left";
+                direction = "left";
             } else {
                 direction = "right";
             }
@@ -330,7 +338,7 @@ function RouteSegment(here, left, right) {
 
     this.trainEnter = function(left) {
         if (left) {
-        this.hasLeftBoundTrain = true;
+            this.hasLeftBoundTrain = true;
         } else {
             this.hasRightBoundTrain = true;
         }
@@ -338,7 +346,7 @@ function RouteSegment(here, left, right) {
 
     this.trainExit = function(left) {
         if (left) {
-        this.hasLeftBoundTrain = false;
+            this.hasLeftBoundTrain = false;
         } else {
             this.hasRightBoundTrain = false;
         }
@@ -438,14 +446,14 @@ function Station() {
         if (this.leftBoundPlatform.queue.length > 0) {
         // console.log("Left-bound platform has ", this.leftBoundPlatform.queue.length, " passengers waiting. Average wait time is ", meanArray(this.leftBoundPlatform.waitTimes()));
 
-        } else {
+    } else {
         // console.log("Right-bound platform has ", this.rightBoundPlatform.queue.length, " passengers waiting. Average wait time is ", meanArray(this.rightBoundPlatform.waitTimes()));
-        }
     }
+}
 
-    this.addParentSegment = function(seg) {
-        this.routeSeg = seg;
-    }
+this.addParentSegment = function(seg) {
+    this.routeSeg = seg;
+}
 
 }
 
@@ -473,7 +481,7 @@ function meanArray(arr) {
 
 function progress(percent)
 {
-     $("#progressbar").progressbar({value: Math.round((percent*100))});
+   $("#progressbar").progressbar({value: Math.round((percent*100))});
 }
 
 // World
@@ -540,8 +548,14 @@ getSimulationData = function(hours){
 
     // set up data container
     data = {
-    LBWaitTimes : [],
-    RBWaitTimes : []
+        leftBound : {
+            waitTimes : [],
+            queueLength : [],
+        },
+        rightBound : {
+            waitTimes : [],
+            queueLength : [],
+        },
     }
 
     for (t = 0; t < totalTicks ; t++) {
@@ -551,10 +565,13 @@ getSimulationData = function(hours){
 
         // collect data
         ////////////////////////////
+        lb = sst.line.rightMost.here.leftBoundPlatform;
+        data.leftBound.waitTimes.push(meanArray(lb.waitTimes));
+        data.leftBound.queueLength.push(lb.queue.length);
 
-        data.LBWaitTimes.push(meanArray(sst.line.rightMost.here.leftBoundPlatform.waitTimes()));
-        data.RBWaitTimes.push(meanArray(sst.line.leftMost.here.rightBoundPlatform.waitTimes()));
-
+        rb = sst.line.leftMost.here.rightBoundPlatform;
+        data.rightBound.waitTimes.push(meanArray(rb.waitTimes));
+        data.rightBound.queueLength.push(rb.queue.length);
 
         // Time dependent behaviors
         /////////////////////////////
