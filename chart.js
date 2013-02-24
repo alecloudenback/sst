@@ -13,6 +13,8 @@ var xScale = d3.scale.linear()
 var yScale = d3.scale.linear()
                 .range([height, 0]);
 
+var color = d3.scale.category10();
+
 var xAxis = d3.svg.axis()
                 .scale(xScale)
                 .orient('bottom');
@@ -26,10 +28,25 @@ var line = d3.svg.line()
 
 function drawData() {
     // get data from sst
-    data = getSimulationData(21).leftBound.waitTimes;
-    xScale.domain(d3.extent(data, function(d,i) { return i;}));
-    yScale.domain(d3.extent(data));
+    data = d3.map(getSimulationData(1));
 
+    color.domain(d3.keys(data));
+
+    var waitTimes = color.domain().map(function(name) {
+        return {
+            name: name,
+            values: data[name].waitTimes,
+        }
+    })
+
+
+    xScale.domain(d3.extent(waitTimes[0].values, function(d,i) { return i;}));
+
+    // go through each direction and find the maximum value
+    yScale.domain([
+        d3.min(waitTimes, function(p) {return d3.min(p.values)}),
+        d3.max(waitTimes, function(p) {return d3.max(p.values)})
+        ]);
 
     svg.append('g')
         .attr('class', 'x axis')
@@ -46,10 +63,19 @@ function drawData() {
             .attr('text-anchor', 'end')
             .text('Avg. Delay');
 
-    svg.append('path')
-        .datum(data)
-        .attr('class', 'line')
-        .attr('d', line);
+    var waitTime = svg.selectAll('.waitTime')
+                        .data(waitTimes)
+                        .enter().append('g')
+                        .attr('class', 'waitTime');
+
+    pathDesc = function(d) {return line(d.values)};
+
+    waitTime.append('path')
+        .attr({
+          'class': 'line',
+          'd': pathDesc,
+        })
+        .style('stroke', function(d) {return color(d.name);});
 }
 
 drawData();
