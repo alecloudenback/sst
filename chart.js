@@ -8,7 +8,7 @@ var svg = d3.select('body').append('svg')
     .append('g')
         .attr('transform', 'translate(' + margin.left + ',' + margin.top +')');
 
-var xScale = d3.scale.linear()
+var xScale = d3.time.scale()
                 .range([0,width]);
 var yScale = d3.scale.linear()
                 .range([height, 0]);
@@ -23,12 +23,12 @@ var yAxis = d3.svg.axis()
                 .orient('left');
 
 var line = d3.svg.line()
-                .x(function(d, i) {return xScale(i);})
+                .x(function(d, i) {return xScale(new Date(2013, 2, 10, 5, 0, i));})
                 .y(function(d, i) { return yScale(d)});
 
 function drawData() {
     // get data from sst
-    hours = 20; // how many hours should the model run?
+    hours = 21; // how many hours should the model run?
     data = d3.map(getSimulationData(hours));
 
     color.domain(d3.keys(data));
@@ -41,8 +41,8 @@ function drawData() {
     })
 
 
-    xScale.domain(d3.extent(waitTimes[0].values, function(d,i) { return i;}));
-
+    xScale.domain(d3.extent(waitTimes[0].values, function(d,i) { return new Date(2013, 2, 10, 5, 0, i);}));
+    xScale.ticks(d3.time.hours, 1);
     // go through each direction and find the maximum value
     yScale.domain([
         d3.min(waitTimes, function(p) {return d3.min(p.values)}),
