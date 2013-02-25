@@ -5,6 +5,11 @@ function Platform(station, leftBound) {
     this.station = station;
     this.tickCount = 0; // keep track to allow time-dependent passenger creation
     this.waitTimes = []; // array of current time spent waiting
+
+    this.lambda = function() {
+        return 400;
+    }
+
     this.push = function(person) {
         return this.queue.push(person);
     };
@@ -72,7 +77,7 @@ function Platform(station, leftBound) {
 
         } else {
             // process governing passener creation
-            if (this.tickCount % 3 === 0) {
+            if (Math.random() < this.lambda() / (60 * 60)) { // assumes hourly lambda
                 this.push(new Passenger());
             }
             return;
