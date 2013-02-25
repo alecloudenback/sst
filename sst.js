@@ -7,7 +7,7 @@ function Platform(station, leftBound) {
     this.waitTimes = []; // array of current time spent waiting
 
     this.lambda = function() {
-        return 400;
+        return 600;
     }
 
     this.push = function(person) {
@@ -51,18 +51,6 @@ function Platform(station, leftBound) {
         }
         this.tickCount += 1;
     }
-
-    // // return array of wait times in ticks
-    // this.waitTimes = function() {
-    //     waits = [];
-    //     for (i = this.queue.length - 1, len = ; i >= 0; i--) {
-    //         waits.push(this.queue[i].waitTime);
-    //     }
-    //     if (waits.length === 0) {
-    //         waits.push(0); // return wait of 0 if no passengers
-    //     }
-    //     return waits;
-    // }
 
     // generatePassengers creates a number of passengers and inserts them into the queue based on the platform's Poisson process
     this.generatePassengers = function() {
