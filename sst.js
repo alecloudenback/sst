@@ -476,7 +476,6 @@ function progress(percent)
 // World
 // A place to keep track of all of the objects
 function World() {
-    this.passengers = [];
     // A World starts with a Station
     this.line = new Route();
     this.trains = [];
@@ -495,19 +494,7 @@ function World() {
 
 
     }
-    this.generatePassengers = function(num) {
 
-        //create passengers
-        for (i = num; i > 0; i--) {
-            this.passengers.push(new Passenger());
-        }
-
-        // assign passengers to  a platform
-
-        for (i = this.passengers.length -   1; i >= 0; i--) {
-
-        }
-    }
     this.generateTrains = function(numleft, numright) {
         for (i = numleft; i > 0; i--) {
             this.trains.push(new Train(this.line.leftMost,false));
