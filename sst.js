@@ -43,8 +43,7 @@ function Platform(station, leftBound) {
 
         // tick the passengers
         for (i = 0, len = this.queue.length; i < len; i++) {
-            this.queue[i].tick();
-            this.waitTimes.push(this.queue[i].waitTime);
+            this.waitTimes.push(this.tickCount - this.queue[i].creationTime);
         }
         if (len === 0) {
             this.waitTimes.push(0); // return wait of 0 if no passengers
@@ -66,7 +65,7 @@ function Platform(station, leftBound) {
         } else {
             // process governing passener creation
             if (Math.random() < this.lambda() / (60 * 60)) { // assumes hourly lambda
-                this.push(new Passenger());
+                this.push(new Passenger(this.tickCount));
             }
             return;
         }
@@ -74,9 +73,9 @@ function Platform(station, leftBound) {
 }
 
 // Passenger
-function Passenger() {
+function Passenger(tick) {
 
-    this.waitTime = 0;
+    this.creationTime = tick;
     this.Clock = new Clock();
     this.enter = function(place) {
         if (place instanceof Platform) {
@@ -95,9 +94,6 @@ function Passenger() {
         return true;
     }
 
-    this.tick = function() {
-        this.waitTime += 1;
-    }
 
 
 }
