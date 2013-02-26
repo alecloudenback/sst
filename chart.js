@@ -77,7 +77,7 @@ function drawData() {
         .style('stroke', function(d) {return color(d.name);});
 
     waitTime.append('text')
-        .datum(function(d,i) {return {name: d.name, value: d.values[d.values.length - 1], index: d.values.length};})
+        .datum(function(d,i) {return {name: d.name, value: d.values[d.values.length - 1], index: new Date(2013, 2, 10, 5, 0, d.values.length)};}) // convert length to time for proper positioning
         .attr({
             'transform': function(d) {return 'translate(' + xScale(d.index) + ',' + yScale(d.value) + ')'},
             'x': 3,
