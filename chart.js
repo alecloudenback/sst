@@ -29,7 +29,8 @@ var line = d3.svg.line()
 function drawData() {
     // get data from sst
     hours = 21; // how many hours should the model run?
-    data = d3.map(getSimulationData(hours).directions);
+    dataObject = getSimulationData(hours);
+    data = d3.map(dataObject.directions);
 
     color.domain(d3.keys(data));
 

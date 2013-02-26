@@ -13,21 +13,17 @@ function Platform(station, leftBound) {
     this.push = function(person) {
         return this.queue.push(person);
     };
-    this.pop = function() {
-        return this.queue.pop();
-    };
+
 
     // make the passengers board the given train
     this.board = function(train) {
         // determine how many passengers can board given train
         cap = train.passengerSpace();
 
-        // pop the fitting number of passengers off of the queue
-        boardingPassengers = [];
-        while (cap > 0 && this.queue.length > 0) {
-            boardingPassengers.push(this.pop());
-            cap--;
-        }
+        // take the fitting number of passengers off of the queue
+        boardingPassengers = this.queue.slice(0,cap-1);
+        this.queue = this.queue.slice(cap, this.queue.length)
+
 
         // pass the boarding passengers to the train
         train.board(boardingPassengers);
@@ -104,7 +100,7 @@ function Train(startSeg, leftBound) {
     this.passengers = []; // an array to hold the passengers on the train
 
     stationWaitTime = 5; // the default time to wait at a station, in seconds
-    this.speed = 80000; // in meters/hour
+    this.speed = 60000; // in meters/hour
     this.capacity = 500;
 
     this.leftBound = leftBound;
@@ -482,7 +478,7 @@ function World() {
     this.tickCount = 0;
     this.tick = function() {
         //tick the world forward
-
+        this.tickCount += 1;
         // tick the stations
         this.line.tick();
 
@@ -566,6 +562,13 @@ getSimulationData = function(hours,seed){
         // if (t === 45) {
             // sst.generateTrains(1);
         // }
+
+        // Print world to console for debugging purposes
+        // if (sst.tickCount > 58360 && sst.tickCount < 58375) {
+        //     peek = sst.line.rightMost.here.leftBoundPlatform;
+        //     console.log(sst.tickCount, peek, peek.waitTimes, meanArray(peek.waitTimes));
+        // }
+
 
     }
 
