@@ -597,7 +597,9 @@ getSimulationData = function(hours,seed){
     // build the route right to left
     sst.line.insertBeginning(new RouteSegment(new Terminus()));
     sst.line.insertBeginning(new RouteSegment(new Station()));
-    sst.line.insertBeginning(new RouteSegment(new Track(1000)));
+    sst.line.insertBeginning(new RouteSegment(new Track(400)));
+    sst.line.insertBeginning(new RouteSegment(new Track(400)));
+    sst.line.insertBeginning(new RouteSegment(new Track(400)));
     sst.line.insertBeginning(new RouteSegment(new Station()));
     sst.line.insertBeginning(new RouteSegment(new Terminus()));
 
