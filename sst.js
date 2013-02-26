@@ -117,19 +117,7 @@ function Train(startSeg, leftBound) {
             return this.currentSegment.right;
         }
     }
-    this.tick = function() {
 
-        if (this.currentSegment.kind instanceof Station ) {
-            // if in station, continue station procedures
-            this.stationProcedures();
-        } else if (this.currentSegment.kind instanceof Terminus && !this.ready) {
-            this.terminusProcedures();
-        } else {
-            // otherwise travel
-            this.travel();
-        }
-
-    }
 
     // return how many more passengers can fit
     this.passengerSpace = function() {
@@ -203,8 +191,21 @@ function Train(startSeg, leftBound) {
         this.ready = false;
     }
 
+    this.tick = function() {
+        if (this.currentSegment.kind instanceof Station ) {
+            // if in station, continue station procedures
+            this.stationProcedures();
+        } else if (this.currentSegment.kind instanceof Terminus && !this.ready) {
+            this.terminusProcedures();
+        } else {
+            // otherwise travel
+            this.travel();
+        }
+
+    }
+
     this.travel = function() {
-        // console.log(this, "on ", this.currentSegment, " heading left?", this.leftBound, " to", this.nextSegment());
+        console.log(this, "on ", this.currentSegment, " heading left?", this.leftBound, " to", this.nextSegment(), "gone", this.distanceOnTrack);
         headingLeft = this.leftBound;
 
              if (!this.nextSegment().safeToProceed(headingLeft)) {
@@ -212,10 +213,14 @@ function Train(startSeg, leftBound) {
                 // console.log("not proceeding", this, this.nextSegment());
 
             } else if (this.currentSegment.kind instanceof Track) {
-                // console.log("track:",this,this.currentSegment, this.nextSegment());
+                console.log("track:",this,this.currentSegment, this.nextSegment());
                 if (((this.currentSegment.kind.length - this.distanceOnTrack) - this.speed / 60 / 60) < 0) {
+                    console.log("moving to next segment", this.nextSegment());
                     this.currentSegment.trainExit(this);
+                    console.log("curb", this.currentSegment);
                     this.currentSegment = this.nextSegment();
+                    console.log("cura", this.currentSegment);
+                    this.distanceOnTrack = 0;
                 }
                 this.distanceOnTrack +=  this.speed / 60 / 60;
 
@@ -360,6 +365,20 @@ function RouteSegment(here, left, right) {
         }
     }
 
+    // What is the distance from the left up to and including seg
+    this.distanceFromLeft = function(seg) {
+        distance = 0;
+        cur = this.leftMost();
+        while (cur !== seg) {
+            if (cur.here.length) {
+                distance += cur.here.length;
+            }
+            cur = cur.right;
+        }
+        return distance;
+    }
+
+    // return the leftMost station
     this.leftMost = function() {
         if (!this.left) {
             // if left is null, this is terminus, so return one right
@@ -368,6 +387,8 @@ function RouteSegment(here, left, right) {
             return this.left.leftMost();
         }
     }
+
+    // return the rightMost station
     this.rightMost = function() {
         if (!this.right) {
             // if right is null, this is terminus, so return one left
@@ -395,8 +416,10 @@ function RouteSegment(here, left, right) {
 // Track
 // A track is a distance that the train must travel in between stations
 function Track(len) {
+    this.length = len;
     this.hasLeftBoundTrain = false;
     this.hasRightBoundTrain = false;
+
     this.trainEnter = function(train) {
         if (train.leftBound) {
             this.hasLeftBoundTrain = true;
@@ -412,7 +435,6 @@ function Track(len) {
             this.hasRightBoundTrain = false;
         }
     }
-    this.length = len;
 
     this.tick = function() {
         // do nothing
@@ -573,6 +595,33 @@ function World() {
 
     }
 
+    //wrapper for convienent distance calcs
+    this.distanceFromLeft = function(seg) {
+        console.log(this.line.rightMost.distanceFromLeft(seg));
+        return this.line.rightMost.distanceFromLeft(seg);
+    }
+
+    // return array of where trains are located
+    this.trainLocations = function() {
+        i = this.trains.length -1;
+
+        dist = [];
+        // go through each train
+        while (i >= 0) {
+            train = this.trains[i];
+            if (train.leftBound) {
+                //train is heading left, so subtract distance traveled on segment
+                dist.push(this.distanceFromLeft(train.currentSegment) - train.distanceOnTrack);
+            } else {
+                // train is heading right, so subtract distance left to go
+                dist.push(this.distanceFromLeft(train.currentSegment.left) + train.distanceOnTrack);
+            }
+
+            // go to next train
+            i--
+        }
+        return dist;
+    }
     this.generateTrains = function(numleft, numright) {
         for (i = numleft; i > 0; i--) {
             this.trains.push(new Train(this.line.leftMost,false));
@@ -621,6 +670,9 @@ getSimulationData = function(hours,seed){
                 queueLength : [],
             },
         },
+        trains: {
+            locations: [],
+        },
         seed : randomSeed,
     }
 
@@ -633,13 +685,16 @@ getSimulationData = function(hours,seed){
         ////////////////////////////
         lb = sst.line.rightMost.left.here.leftBoundPlatform;
         lbData = data.directions.leftBound;
-        lbData.waitTimes.push(meanArray(lb.waitTimes));
+        lbData.waitTimes.push(sumArray(lb.waitTimes));
         lbData.queueLength.push(lb.queue.length);
 
         rb = sst.line.leftMost.right.here.rightBoundPlatform;
         rbData = data.directions.rightBound;
-        rbData.waitTimes.push(meanArray(rb.waitTimes));
+        rbData.waitTimes.push(sumArray(rb.waitTimes));
         rbData.queueLength.push(rb.queue.length);
+
+        data.trains.locations.push(sst.trainLocations());
+        console.log("tick", t, sst.trains[0], data.trains.locations[t])
 
         // Time dependent behaviors
         /////////////////////////////
