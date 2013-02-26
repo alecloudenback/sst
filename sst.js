@@ -518,9 +518,14 @@ function World() {
 
 
 // Run the model
-getSimulationData = function(hours){
+getSimulationData = function(hours,seed){
 
-
+    // if seed exists, use it, else just store the generated seed
+    if (seed) {
+        randomSeed = Math.seedrandom(seed);
+    } else {
+        randomSeed = Math.seedrandom();
+    }
     sst = new World();
 
 
@@ -537,14 +542,17 @@ getSimulationData = function(hours){
 
     // set up data container
     data = {
-        leftBound : {
-            waitTimes : [],
-            queueLength : [],
+        directions: {
+            leftBound : {
+                waitTimes : [],
+                queueLength : [],
+            },
+            rightBound : {
+                waitTimes : [],
+                queueLength : [],
+            },
         },
-        rightBound : {
-            waitTimes : [],
-            queueLength : [],
-        },
+        seed : randomSeed,
     }
 
     for (t = 0; t < totalTicks ; t++) {
@@ -555,12 +563,14 @@ getSimulationData = function(hours){
         // collect data
         ////////////////////////////
         lb = sst.line.rightMost.here.leftBoundPlatform;
-        data.leftBound.waitTimes.push(meanArray(lb.waitTimes));
-        data.leftBound.queueLength.push(lb.queue.length);
+        lbData = data.directions.leftBound;
+        lbData.waitTimes.push(meanArray(lb.waitTimes));
+        lbData.queueLength.push(lb.queue.length);
 
         rb = sst.line.leftMost.here.rightBoundPlatform;
-        data.rightBound.waitTimes.push(meanArray(rb.waitTimes));
-        data.rightBound.queueLength.push(rb.queue.length);
+        rbData = data.directions.rightBound;
+        rbData.waitTimes.push(meanArray(rb.waitTimes));
+        rbData.queueLength.push(rb.queue.length);
 
         // Time dependent behaviors
         /////////////////////////////

@@ -29,7 +29,7 @@ var line = d3.svg.line()
 function drawData() {
     // get data from sst
     hours = 21; // how many hours should the model run?
-    data = d3.map(getSimulationData(hours));
+    data = d3.map(getSimulationData(hours).directions);
 
     color.domain(d3.keys(data));
 
@@ -39,7 +39,6 @@ function drawData() {
             values: data[name].waitTimes,
         }
     })
-
 
     xScale.domain(d3.extent(waitTimes[0].values, function(d,i) { return new Date(2013, 2, 10, 5, 0, i);}));
     xScale.ticks(d3.time.hours, 1);
