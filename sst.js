@@ -7,7 +7,7 @@ function Platform(station, leftBound) {
     this.waitTimes = []; // array of current time spent waiting
 
     this.lambda = function() {
-        return 600;
+        return 2000;
     }
 
     this.push = function(person) {
@@ -98,7 +98,7 @@ function Train(startSeg, leftBound, pauseTicks) {
     this.passengers = []; // an array to hold the passengers on the train
 
     this.pauseTicks = pauseTicks || 0; // the default time to wait at a location, in ticks
-    this.speed = 60000; // in meters/hour
+    this.speed = 40000; // in meters/hour
     this.capacity = 500;
 
     this.leftBound = leftBound;
@@ -111,10 +111,8 @@ function Train(startSeg, leftBound, pauseTicks) {
 
     this.nextSegment = function() {
         if (this.leftBound) {
-            console.log("left")
             return this.currentSegment.left;
         } else {
-            console.log("right")
             return this.currentSegment.right;
         }
     }
@@ -142,17 +140,15 @@ function Train(startSeg, leftBound, pauseTicks) {
 
         // set those still on the train as the remaining passengers
         this.passengers = remainingPassengers;
-
         //make train wait based on number of passengers getting off
-        this.pauseTicks += .0002 * exitingPassengers.length^2;
+        this.pauseTicks += ( exitingPassengers.length + 100) / 10; // chosen to have a baseline of 10 seconds for stop, with a max of 60 seconds if 500 passengers getting off
 
         return exitingPassengers;
     }
 
     // take the passengers getting on and decide how long it will take to board them
     this.board = function(pass) {
-        this.pauseTicks += .0003 * pass.length^2 + 20 ; // chosen to have a baseline of 20 seconds for stop, with a max of ~1.5 minutes if 500 passengers getting on
-
+        this.pauseTicks += (4 * pass.length + 250) / 25 ; // chosen to have a baseline of 10 seconds for stop, with a max of ~1.5 minutes if 500 passengers getting on
         this.passengers = this.passengers.concat(pass); // add the boarding passengers to list of those already onboard
     }
 
@@ -182,6 +178,15 @@ function Train(startSeg, leftBound, pauseTicks) {
 
         this.leftBound = !this.leftBound;
 
+        if (this.pauseTicks < 1) {
+            // time for the train to leave the station
+            this.distanceOnTrack = 0;
+            this.boarded = false;
+            this.ready = true;
+
+        } else {
+            this.pauseTicks--;
+        }
         this.ready = true;
 
     }
@@ -214,9 +219,7 @@ function Train(startSeg, leftBound, pauseTicks) {
 
     this.travel = function() {
         nextSeg = this.nextSegment();
-        console.log(nextSeg.kind)
         headingLeft = this.leftBound;
-        console.log(this)
         if (nextSeg.safeToProceed(headingLeft)) {
             //  proceed
             this.currentSegment.trainExit(this);
@@ -224,7 +227,6 @@ function Train(startSeg, leftBound, pauseTicks) {
             this.currentSegment.trainEnter(this);
         } else {
             // don't proceed
-            console.log("not safe to proceed to ", nextSeg.kind, "from", this.currentSegment, nextSeg.safeToProceed(headingLeft), nextSeg.kind.hasLeftBoundTrain, nextSeg.kind.hasRightBoundTrain)
         }
     }
 
@@ -495,6 +497,7 @@ function Terminus() {
         }
 
         train.ready = false;
+        train.pauseTicks = 120; // wait two minutes before turning around
         train.currentProcedure = train.terminusProcedures;
     }
 
@@ -589,8 +592,8 @@ function World() {
             this.trains.push(new Train(this.line.leftMost,false));
         }
     }
-    this.addTrainAtTick = function() {
-        this.trains.push(new Train(this.line.leftMost, false, 45))
+    this.addTrainAtTick = function(tick) {
+        this.trains.push(new Train(this.line.leftMost, false, tick))
     }
 
 }
@@ -614,13 +617,15 @@ getSimulationData = function(hours,seed){
     sst.line.insertBeginning(new RouteSegment(new Track(400)));
     sst.line.insertBeginning(new RouteSegment(new Track(400)));
     sst.line.insertBeginning(new RouteSegment(new Track(400)));
+    sst.line.insertBeginning(new RouteSegment(new Track(400)));
+    sst.line.insertBeginning(new RouteSegment(new Track(400)));
     sst.line.insertBeginning(new RouteSegment(new Station()));
     sst.line.insertBeginning(new RouteSegment(new Terminus()));
 
     // generate trains
     sst.generateTrains(1);
 
-    // sst.addTrainAtTick(45);
+    // sst.addTrainAtTick(240);
 
     // Begin ticking the world
     totalTicks = hours * 60 * 60;

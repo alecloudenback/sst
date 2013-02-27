@@ -1,5 +1,5 @@
-var margin = {top: 20, right: 60, bottom: 30, left: 50};
-var width = 980 - margin.left - margin.right,
+var margin = {top: 20, right: 60, bottom: 30, left: 60};
+var width = 1600 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
 var svg = d3.select('body').append('svg')
@@ -28,7 +28,7 @@ var line = d3.svg.line()
 
 function drawData() {
     // get data from sst
-    hours = .2; // how many hours should the model run?
+    hours = .5; // how many hours should the model run?
     dataObject = getSimulationData(hours);
     data = d3.map(dataObject.directions);
 
@@ -62,7 +62,7 @@ function drawData() {
             .attr('y', 6)
             .attr('dy','.71em')
             .attr('text-anchor', 'end')
-            .text('Avg. Delay');
+            .text('Total Delay');
 
     var waitTime = svg.selectAll('.waitTime')
                         .data(waitTimes)
