@@ -59,7 +59,12 @@ function Platform(station, leftBound) {
 
         } else {
             // process governing passener creation
-            if (Math.random() < this.lambda() / (60 * 60)) { // assumes hourly lambda
+            // if (Math.random() < this.lambda() / (60 * 60)) { // assumes hourly lambda
+            //     this.push(new Passenger(this.tickCount));
+            // }
+
+            // Deterministic passenger creation
+            if (this.tickCount % 1 === 0){
                 this.push(new Passenger(this.tickCount));
             }
             return;
@@ -98,15 +103,14 @@ function Train(id,startSeg, leftBound, pauseTicks) {
     this.passengers = []; // an array to hold the passengers on the train
 
     this.pauseTicks = pauseTicks || 0; // the default time to wait at a location, in ticks
-    this.speed = 40000; // in meters/hour
+    this.speed = 45000; // in meters/hour
     this.capacity = 500;
 
     this.leftBound = leftBound;
     this.currentSegment = startSeg;
     this.boarded = false;
-    this.ready = true;
+    this.ready = false;
     this.distanceOnTrack = 0;
-    this.currentProcedure = null;
 
 
     this.nextSegment = function() {
@@ -176,20 +180,18 @@ function Train(id,startSeg, leftBound, pauseTicks) {
 
     this.terminusProcedures = function() {
 
-        this.leftBound = !this.leftBound;
-
         if (this.pauseTicks < 1) {
             // time for the train to leave the station
+            this.leftBound = !this.leftBound;
             this.distanceOnTrack = 0;
             this.boarded = false;
             this.ready = true;
-
         } else {
             this.pauseTicks--;
         }
-        this.ready = true;
 
     }
+    this.currentProcedure = this.terminusProcedures; // trains start at terminus
 
     this.trackProcedures = function() {
         if ((this.currentSegment.kind.length - this.distanceOnTrack) - this.speed / 60 / 60 <= 0) {
@@ -595,9 +597,9 @@ function World() {
     }
     this.addTrainAtTick = function(tick, leftMost) {
         if (leftMost) {
-         this.trains.push(new Train(this.trains.length, this.line.leftMost, false, tick));
+         this.trains.push(new Train(this.trains.length, this.line.leftMost, true, tick));
         } else {
-         this.trains.push(new Train(this.trains.length, this.line.rightMost, true, tick));
+         this.trains.push(new Train(this.trains.length, this.line.rightMost, false, tick));
         }
     }
 
@@ -621,7 +623,7 @@ getSimulationData = function(hours,seed){
     sst.line.insertBeginning(new RouteSegment(new Station(0)));
     sst.line.insertBeginning(new RouteSegment(new Track(400)));
     sst.line.insertBeginning(new RouteSegment(new Track(400)));
-    sst.line.insertBeginning(new RouteSegment(new Track(400)));
+    sst.line.insertBeginning(new RouteSegment(new Track(1000)));
     sst.line.insertBeginning(new RouteSegment(new Track(400)));
     sst.line.insertBeginning(new RouteSegment(new Track(400)));
     sst.line.insertBeginning(new RouteSegment(new Station(1)));

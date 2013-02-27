@@ -28,7 +28,7 @@ var line = d3.svg.line()
 
 function drawData() {
     // get data from sst
-    hours = 6; // how many hours should the model run?
+    hours = 20; // how many hours should the model run?
     dataObject = getSimulationData(hours);
     data = d3.map(dataObject.directions);
 
@@ -37,7 +37,7 @@ function drawData() {
     var waitTimes = color.domain().map(function(name) {
         return {
             name: name,
-            values: data[name].waitTimes,
+            values: data[name].queueLength,
         }
     })
 
