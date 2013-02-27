@@ -4,7 +4,7 @@ Simple Subway Transit
 Description of Investigation
 -----------------------------
 
-The project will investigate how variations in transit scheduling (number of trains and speed) and passenger load and frequency affect the efficiency (as measured in costs of passenger time and train use). The initial system will just use two stations connected by a length of track, with passengers traveling in both directions. The goal is to see what type of relationship the different variables in the system have.
+The project will investigate how variations in transit scheduling (number of trains and speed) and passenger load and frequency affect the efficiency (as measured in costs of passenger time and train use). The initial system will just use two stations connected by a length of track, with passengers traveling in both directions. The goal is to see what type of behavior the system has with different properties and scenarios.
 
 **Goal**
 
