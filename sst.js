@@ -22,7 +22,7 @@ function Platform(station, leftBound) {
 
         // take the fitting number of passengers off of the queue
         boardingPassengers = this.queue.slice(0,cap-1);
-        this.queue = this.queue.slice(cap, this.queue.length)
+        this.queue = this.queue.slice(cap, this.queue.length);
 
 
         // pass the boarding passengers to the train
@@ -93,8 +93,8 @@ function Passenger(tick) {
 }
 
 // Train
-function Train(startSeg, leftBound, pauseTicks) {
-
+function Train(id,startSeg, leftBound, pauseTicks) {
+    this.id = id;
     this.passengers = []; // an array to hold the passengers on the train
 
     this.pauseTicks = pauseTicks || 0; // the default time to wait at a location, in ticks
@@ -410,7 +410,8 @@ function Track(len) {
 
 // Station
 // A Station is where passengers may board and exit the train
-function Station() {
+function Station(id) {
+    this.id = id;
     this.hasLeftBoundTrain = false;
     this.hasRightBoundTrain = false;
     this.leftBoundPlatform = new Platform(this, true);
@@ -554,8 +555,8 @@ function World() {
         this.line.tick();
 
         // tick the trains
-        for (i = this.trains.length - 1 ; i >= 0; i--) {
-            this.trains[i].tick();
+        for (trainNum = this.trains.length - 1 ; trainNum >= 0; trainNum--) {
+            this.trains[trainNum].tick();
         }
 
 
@@ -594,9 +595,9 @@ function World() {
     }
     this.addTrainAtTick = function(tick, leftMost) {
         if (leftMost) {
-         this.trains.push(new Train(this.line.leftMost, false, tick));
+         this.trains.push(new Train(this.trains.length, this.line.leftMost, false, tick));
         } else {
-         this.trains.push(new Train(this.line.rightMost, true, tick));
+         this.trains.push(new Train(this.trains.length, this.line.rightMost, true, tick));
         }
     }
 
@@ -617,13 +618,13 @@ getSimulationData = function(hours,seed){
 
     // build the route right to left
     sst.line.insertBeginning(new RouteSegment(new Terminus()));
-    sst.line.insertBeginning(new RouteSegment(new Station()));
+    sst.line.insertBeginning(new RouteSegment(new Station(0)));
     sst.line.insertBeginning(new RouteSegment(new Track(400)));
     sst.line.insertBeginning(new RouteSegment(new Track(400)));
     sst.line.insertBeginning(new RouteSegment(new Track(400)));
     sst.line.insertBeginning(new RouteSegment(new Track(400)));
     sst.line.insertBeginning(new RouteSegment(new Track(400)));
-    sst.line.insertBeginning(new RouteSegment(new Station()));
+    sst.line.insertBeginning(new RouteSegment(new Station(1)));
     sst.line.insertBeginning(new RouteSegment(new Terminus()));
 
     // generate trains ( in order of last to depart)
@@ -653,7 +654,6 @@ getSimulationData = function(hours,seed){
     }
 
     for (t = 0; t < totalTicks ; t++) {
-
         //tick the world forward
         sst.tick();
 
