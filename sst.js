@@ -592,8 +592,12 @@ function World() {
             this.trains.push(new Train(this.line.leftMost,false));
         }
     }
-    this.addTrainAtTick = function(tick) {
-        this.trains.push(new Train(this.line.leftMost, false, tick))
+    this.addTrainAtTick = function(tick, leftMost) {
+        if (leftMost) {
+         this.trains.push(new Train(this.line.leftMost, false, tick));
+        } else {
+         this.trains.push(new Train(this.line.rightMost, true, tick));
+        }
     }
 
 }
@@ -622,10 +626,10 @@ getSimulationData = function(hours,seed){
     sst.line.insertBeginning(new RouteSegment(new Station()));
     sst.line.insertBeginning(new RouteSegment(new Terminus()));
 
-    // generate trains
-    sst.generateTrains(1);
+    // generate trains ( in order of last to depart)
 
-    // sst.addTrainAtTick(240);
+    sst.addTrainAtTick(5, true);
+    sst.addTrainAtTick(5, false);
 
     // Begin ticking the world
     totalTicks = hours * 60 * 60;

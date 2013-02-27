@@ -20,20 +20,19 @@ Model Components
 
 **Scenario**
 
--   Scenario plays out over a single day
+-   Scenario plays out over a single day (20 hours)
 
 **Trains**
 
 -	Safety control system (can't get too close to train in front)
--   Takes time to load passengers based on train capacity (non-linear function that increases based on how close to capacity)
+-   Takes time to load passengers based on train capacity (function that increases based on how close to capacity)
 -   Move on track in both directions
 
 **Passengers**
 
 -   Agent-based (each passenger is modeled)
 -   Tracks time waiting on platform
--   Tracks time until reaching destination
--   Arrive according to a time-dependent Poisson process
+-   Arrive according to a Poisson process
 
 **Stations**
 
@@ -54,8 +53,5 @@ This is the variables being principally investigated, i.e. the project seeks to 
 -   Number of passengers on platforms (waiting)
 -   Headway distribution
 
-Implementation questions
-------------------------
 
-Should passengers behave randomly or deterministically? If randomly, set and store a random seed each run for reproducibility.
 
