@@ -98,7 +98,7 @@ function Train(startSeg, leftBound) {
 
     this.passengers = []; // an array to hold the passengers on the train
 
-    pauseTicks = 5; // the default time to wait at a station, in seconds
+    this.pauseTicks = 0; // the default time to wait at a location, in ticks
     this.speed = 60000; // in meters/hour
     this.capacity = 500;
 
@@ -107,7 +107,7 @@ function Train(startSeg, leftBound) {
     this.boarded = false;
     this.ready = true;
     this.distanceOnTrack = 0;
-    this.timeInStation = pauseTicks; // how long the train should stay in station, seperate so as to not over-write original setting
+    this.currentProcedure = null;
 
 
     this.nextSegment = function() {
@@ -143,16 +143,14 @@ function Train(startSeg, leftBound) {
         this.passengers = remainingPassengers;
 
         //make train wait based on number of passengers getting off
-        pauseTicks += .0002 * exitingPassengers.length^2;
+        this.pauseTicks += .0002 * exitingPassengers.length^2;
 
         return exitingPassengers;
     }
 
     // take the passengers getting on and decide how long it will take to board them
     this.board = function(pass) {
-        delayTime = .0003 * pass.length^2 + 20 ; // chosen to have a baseline of 20 seconds for stop, with a max of ~1.5 minutes if 500 passengers getting on
-
-        pauseTicks += delayTime;
+        this.pauseTicks += .0003 * pass.length^2 + 20 ; // chosen to have a baseline of 20 seconds for stop, with a max of ~1.5 minutes if 500 passengers getting on
 
         this.passengers = this.passengers.concat(pass); // add the boarding passengers to list of those already onboard
     }
@@ -161,91 +159,76 @@ function Train(startSeg, leftBound) {
     this.stationProcedures = function() {
         if (!this.boarded) {
             // initiate unload/unload procedure
-            this.currentSegment.here.arrive(this);
+            this.currentSegment.here.arrive(this); // station will tell train how long to wait
 
             // console.log("train heading", direction, " with ", this.passengers.length, " passengers");
             this.boarded = true;
         }
-
-        if (this.timeInStation < 1) {
+        console.log("waiting for ", this.pauseTicks)
+        if (this.pauseTicks < 1) {
             // time for the train to leave the station
-            this.timeInStation = pauseTicks;
             this.distanceOnTrack = 0;
             this.boarded = false;
-            this.travel();
+            this.ready = true;
 
         } else {
-            this.timeInStation--;
+            this.pauseTicks--;
         }
     }
+
+
 
     this.terminusProcedures = function() {
-        if (!this.ready) {
-            this.leftBound = !this.leftBound;
 
-            this.ready = true;
-        }
+        this.leftBound = !this.leftBound;
+
+        this.ready = true;
+
     }
+
+    this.trackProcedures = function() {
+        if ((this.currentSegment.kind.length - this.distanceOnTrack) - this.speed / 60 / 60 <= 0) {
+            // train ready to proceed
+            this.ready = true;
+            this. distanceOnTrack = 0; // reset distance traveled on segment
+        }
+        // add this speed so that it can partially travel on next track segment
+        this.distanceOnTrack += this.speed / 60 / 60;
+    }
+
+
 
     this.makeNotReady = function() {
         this.ready = false;
     }
 
     this.tick = function() {
-        if (this.currentSegment.kind instanceof Station ) {
-            // if in station, continue station procedures
-            this.stationProcedures();
-        } else if (this.currentSegment.kind instanceof Terminus && !this.ready) {
-            this.terminusProcedures();
-        } else {
-            // otherwise travel
+        console.log(this);
+        if (this.ready) {
+            //travel
             this.travel();
+        } else {
+            // continue process until ready
+            this.currentProcedure();
         }
 
     }
 
     this.travel = function() {
-        console.log(this, "on ", this.currentSegment, " heading left?", this.leftBound, " to", this.nextSegment(), "gone", this.distanceOnTrack);
+        nextSeg = this.nextSegment();
+        console.log(this, "traveling, cur ", this.currentSegment, " to ", nextSeg )
         headingLeft = this.leftBound;
+        if (nextSeg.safeToProceed(headingLeft)) {
+            //  proceed
+            this.currentSegment.trainExit(this);
+            this.currentSegment = nextSeg;
+            this.currentSegment.trainEnter(this);
+        } else {
+            // don't proceed
 
-             if (!this.nextSegment().safeToProceed(headingLeft)) {
-                // Don't proceed
-                // console.log("not proceeding", this, this.nextSegment());
-
-            } else if (this.currentSegment.kind instanceof Track) {
-                console.log("track:",this,this.currentSegment, this.nextSegment());
-                if (((this.currentSegment.kind.length - this.distanceOnTrack) - this.speed / 60 / 60) < 0) {
-                    console.log("moving to next segment", this.nextSegment());
-                    this.currentSegment.trainExit(this);
-                    console.log("curb", this.currentSegment);
-                    this.currentSegment = this.nextSegment();
-                    console.log("cura", this.currentSegment);
-                    this.distanceOnTrack = 0;
-                }
-                this.distanceOnTrack +=  this.speed / 60 / 60;
-
-            } else if (this.currentSegment.kind instanceof Station) {
-                // check if entering terminus
-                if (this.nextSegment().kind instanceof Terminus) {
-                    this.ready = false; // train has to do things before heading other direction
-                }
-
-                // leave station
-                this.currentSegment.trainExit(this);
-                this.currentSegment = this.nextSegment();
-
-                this.currentSegment.trainEnter(this);
-            } else if (this.currentSegment.kind instanceof Terminus) {
-                // leave terminus
-                this.currentSegment.trainExit(this);
-                this.currentSegment = this.nextSegment();
-
-                this.currentSegment.trainEnter(this);
-            } else {
-                console.log("Error in train routing:", this);
-
-            }
         }
+        console.log(this, "traveled")
+    }
 
     }
 
@@ -398,15 +381,6 @@ function RouteSegment(here, left, right) {
         }
     }
 
-    this.isTerminus = function() {
-        if (this.leftMost() === this || this.rightMost() === this) {
-            // station is Terminus
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     // pass the tick onto this node's location
     this.tick = function() {
         this.here.tick();
@@ -426,6 +400,9 @@ function Track(len) {
         } else {
             this.hasRightBoundTrain = true;
         }
+
+        train.ready = false;
+        train.currentProcedure = train.trackProcedures;
     }
 
     this.trainExit = function(train) {
@@ -460,6 +437,8 @@ function Station() {
         } else {
             this.hasRightBoundTrain = true;
         }
+        train.ready = false;
+        train.currentProcedure = train.stationProcedures;
     }
 
     this.trainExit = function(train) {
@@ -525,6 +504,9 @@ function Terminus() {
         } else {
             this.hasRightBoundTrain = true;
         }
+
+        train.ready = false;
+        train.currentProcedure = train.terminusProcedures;
     }
 
     this.trainExit = function(train) {
@@ -538,13 +520,6 @@ function Terminus() {
         return true; // assume that the end of the line can handle multiple trains
     }
 
-    this.trainEnter = function(train) {
-        return;
-    }
-
-    this.trainExit = function(train) {
-        return;
-    }
     this.addParentSegment = function(seg) {
         this.routeSeg = seg;
     }
@@ -597,7 +572,6 @@ function World() {
 
     //wrapper for convienent distance calcs
     this.distanceFromLeft = function(seg) {
-        console.log(this.line.rightMost.distanceFromLeft(seg));
         return this.line.rightMost.distanceFromLeft(seg);
     }
 
