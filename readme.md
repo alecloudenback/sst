@@ -12,6 +12,8 @@ The hope is to better understand the types of interactions that the passengers a
 
 **Current Status and Direction**
 
+_Status_
+
 Currently, the system has been tested and working with two stations and a variable number of trains and track length separating them. Scenarios including one and two trains have been tested, and some preliminary results are:
 
 -   With one train, there is a threshold where if the number of passengers waiting increases past the capacity of the train, the system degenerates into ever-increasing passengers waiting
