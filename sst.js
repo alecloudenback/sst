@@ -190,7 +190,6 @@ function Train(startSeg, leftBound) {
         if ((this.currentSegment.kind.length - this.distanceOnTrack) - this.speed / 60 / 60 <= 0) {
             // train ready to proceed
             this.ready = true;
-            this. distanceOnTrack = 0; // reset distance traveled on segment
         }
         // add this speed so that it can partially travel on next track segment
         this.distanceOnTrack += this.speed / 60 / 60;
@@ -216,8 +215,8 @@ function Train(startSeg, leftBound) {
 
     this.travel = function() {
         nextSeg = this.nextSegment();
-        console.log(this, "traveling, cur ", this.currentSegment, " to ", nextSeg )
         headingLeft = this.leftBound;
+
         if (nextSeg.safeToProceed(headingLeft)) {
             //  proceed
             this.currentSegment.trainExit(this);
@@ -227,7 +226,6 @@ function Train(startSeg, leftBound) {
             // don't proceed
 
         }
-        console.log(this, "traveled")
     }
 
     }
@@ -400,12 +398,13 @@ function Track(len) {
         } else {
             this.hasRightBoundTrain = true;
         }
-
+        train.distanceOnTrack += train.speed / 60 / 60; // give train boost equal to one tick to make up for losing turn on travel
         train.ready = false;
         train.currentProcedure = train.trackProcedures;
     }
 
     this.trainExit = function(train) {
+        train.distanceOnTrack -= this.length; // reset distance traveled on segment
         if (train.leftBound) {
             this.hasLeftBoundTrain = false;
         } else {
@@ -578,17 +577,19 @@ function World() {
     // return array of where trains are located
     this.trainLocations = function() {
         i = this.trains.length -1;
-
         dist = [];
         // go through each train
         while (i >= 0) {
             train = this.trains[i];
+            console.log("train location", train.currentSegment)
             if (train.leftBound) {
                 //train is heading left, so subtract distance traveled on segment
-                dist.push(this.distanceFromLeft(train.currentSegment) - train.distanceOnTrack);
+                console.log("left", this.distanceFromLeft(train.currentSegment.right), train.distanceOnTrack)
+                dist.push(this.distanceFromLeft(train.currentSegment.right) - train.distanceOnTrack);
             } else {
                 // train is heading right, so subtract distance left to go
-                dist.push(this.distanceFromLeft(train.currentSegment.left) + train.distanceOnTrack);
+                console.log("right", this.distanceFromLeft(train.currentSegment),train.distanceOnTrack);
+                dist.push(this.distanceFromLeft(train.currentSegment) + train.distanceOnTrack);
             }
 
             // go to next train
@@ -644,9 +645,7 @@ getSimulationData = function(hours,seed){
                 queueLength : [],
             },
         },
-        trains: {
-            locations: [],
-        },
+        trains: [],
         seed : randomSeed,
     }
 
@@ -668,15 +667,15 @@ getSimulationData = function(hours,seed){
         rbData.queueLength.push(rb.queue.length);
 
         data.trains.locations.push(sst.trainLocations());
-        console.log("tick", t, sst.trains[0], data.trains.locations[t])
+        console.log("tick", t, sst.trains[0].currentSegment, data.trains.locations[t])
 
         // Time dependent behaviors
         /////////////////////////////
 
         // after 90 ticks, add another train
-        // if (t === 45) {
-        //     sst.generateTrains(1);
-        // }
+        if (t === 45) {
+            sst.generateTrains(1);
+        }
 
         // Print world to console for debugging purposes
         // if (sst.tickCount > 58360 && sst.tickCount < 58375) {
