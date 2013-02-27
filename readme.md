@@ -10,7 +10,7 @@ The project will investigate how variations in transit scheduling (number of tra
 
 The hope is to better understand the types of interactions that the passengers and trains have. If inefficiencies or bottlenecks occur, then I will investigate strategies to alleviate delays or costs.
 
-** Current Status and Direction**
+**Current Status and Direction**
 
 Currently, the system has been tested and working with two stations and a variable number of trains and track length separating them. Scenarios including one and two trains have been tested, and some preliminary results are:
 
