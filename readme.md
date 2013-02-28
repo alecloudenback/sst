@@ -25,6 +25,7 @@ _Direction_
 I wish to continue investigating behavior of the system with two stations:
 
 -   Increase the number of trains
+-   Add time-dependent Poisson process to more accurately model passenger flow (ideally in a way that intelligently depends on centrality of platform in given direction [i.e. more people get on in the morning going 'inbound']).
 -   Add dispatching to try and intelligently control headway between trains and try to avoid bunching.
 -   Is there a threshold where bunched trains degenerate into ever-increasing passengers waiting? (probably, but haven't had high enough passenger generation to test with two trains)
 
@@ -82,6 +83,6 @@ This is the variables being principally investigated, i.e. the project seeks to 
 Interesting Notes
 -------------------
 
--   Trains being eveling spaced is an unstable condition. The system degenerates into bunching if either the passenger arrival is random or the trains don't start exactly at the same time at opposite ends
+-   Trains being evenly spaced is an unstable condition. The system degenerates into bunching if either the passenger arrival is random or the trains don't start exactly at the same time at opposite ends
 
 
