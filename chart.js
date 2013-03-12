@@ -11,7 +11,7 @@ var svg = d3.select('body').append('svg')
 
 
 // run simulation from sst
-hours = 2; // how many hours should the model run?
+hours = 1; // how many hours should the model run?
 dataObject = getSimulationData(hours);
 
 // Waiting time data
@@ -93,7 +93,7 @@ function drawWaitData(dataObj) {
 
 // Train location/headway data
 
-height2 = 200
+height2 = 200;
 var trainSVG = d3.select('body').append('svg')
     .attr('width', width + margin.left + margin.right)
     .attr('height', height2 + margin.top / 2 + margin.bottom / 2)

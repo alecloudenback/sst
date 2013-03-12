@@ -5,9 +5,11 @@ function Platform(station, leftBound) {
     this.station = station;
     this.tickCount = 0; // keep track to allow time-dependent passenger creation
     this.waitTimes = []; // array of current time spent waiting
+    this.shouldGeneratePassengers = true; // default to loading passengers
+
 
     this.lambda = function() {
-        return 400;
+        return 2000;
     }
 
     this.push = function(person) {
@@ -50,23 +52,16 @@ function Platform(station, leftBound) {
     // generatePassengers creates a number of passengers and inserts them into the queue based on the platform's Poisson process
     this.generatePassengers = function() {
         // if this is the last platform in a given direction, don't generate passengers
-        if (this.station.routeSeg === this.station.routeSeg.leftMost().right && this.leftBound ) {
-            // platform is leftmost and is left bound
-            return;
-        } else if (this.station.routeSeg === this.station.routeSeg.rightMost().left && !this.leftBound ) {
-            // platform is rightmost and is right bound
-            return;
-
-        } else {
+        if (this.shouldGeneratePassengers ) {
             // process governing passener creation
-            // if (Math.random() < this.lambda() / (60 * 60)) { // assumes hourly lambda
-            //     this.push(new Passenger(this.tickCount));
-            // }
-
-            // Deterministic passenger creation
-            if (this.tickCount % 2 === 0){
+            if (Math.random() < this.lambda() / (60 * 60)) { // assumes hourly lambda
                 this.push(new Passenger(this.tickCount));
             }
+
+            // Deterministic passenger creation
+            // if (this.tickCount % 2 === 0){
+            //     this.push(new Passenger(this.tickCount));
+            // }
             return;
         }
     }
@@ -235,7 +230,7 @@ function Train(id,startSeg, leftBound, pauseTicks) {
     }
 
 function Route(leftMost, rightMost) {
-    //both should be stations
+    //both should be terminus
     this.leftMost = leftMost;
     this.rightMost = rightMost;
 
@@ -463,13 +458,6 @@ function Station(id) {
         this.leftBoundPlatform.tick();
         this.rightBoundPlatform.tick();
 
-        //display queue info
-        if (this.leftBoundPlatform.queue.length > 0) {
-        // console.log("Left-bound platform has ", this.leftBoundPlatform.queue.length, " passengers waiting. Average wait time is ", meanArray(this.leftBoundPlatform.waitTimes()));
-
-        } else {
-            // console.log("Right-bound platform has ", this.rightBoundPlatform.queue.length, " passengers waiting. Average wait time is ", meanArray(this.rightBoundPlatform.waitTimes()));
-        }
     }
 
     this.safeToProceed = function(left) {
@@ -536,11 +524,6 @@ function sumArray(arr) {
 function meanArray(arr) {
     sum = sumArray(arr);
     return sum/arr.length;
-}
-
-function progress(percent)
-{
-   $("#progressbar").progressbar({value: Math.round((percent*100))});
 }
 
 // World
@@ -633,6 +616,9 @@ getSimulationData = function(hours,seed){
     sst.line.insertBeginning(new RouteSegment(new Station(1)));
     sst.line.insertBeginning(new RouteSegment(new Terminus()));
 
+    // disable passenger generation at two end platforms
+    sst.line.leftMost.right.here.leftBoundPlatform.shouldGeneratePassengers = false;
+    sst.line.rightMost.left.here.rightBoundPlatform.shouldGeneratePassengers = false;
     // generate trains ( in order of last to depart)
     // trains number of trains has to be set in the beginning, so that the data container can be set up properly
 
