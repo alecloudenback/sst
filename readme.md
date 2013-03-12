@@ -18,7 +18,7 @@ Currently, the system has been tested and working with two stations and a variab
 
 -   With one train, there is a threshold where if the number of passengers waiting increases past the capacity of the train, the system degenerates into ever-increasing passengers waiting
 -   With two trains, there is a similar behavior if the trains are mirrored along the line (start at opposite ends and leave at the same time)
--   With two trains, even spacing is an unstable state. If passengers arrive randomly, bunching of the trains will occur. If passengers arrive deterministically, but the trains don't start at exactly the same time, the system falls into a bunched state.
+-   With two trains, even spacing is an unstable state. If passengers arrive randomly, bunching of the trains will occur. If passengers arrive deterministically, but the trains don't start within the time-gap of passenger generation, the system falls into a bunched state.
 
 _Direction_
 
