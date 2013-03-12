@@ -59,14 +59,14 @@ function Platform(station, leftBound) {
 
         } else {
             // process governing passener creation
-            if (Math.random() < this.lambda() / (60 * 60)) { // assumes hourly lambda
-                this.push(new Passenger(this.tickCount));
-            }
-
-            // Deterministic passenger creation
-            // if (this.tickCount % 1 === 0){
+            // if (Math.random() < this.lambda() / (60 * 60)) { // assumes hourly lambda
             //     this.push(new Passenger(this.tickCount));
             // }
+
+            // Deterministic passenger creation
+            if (this.tickCount % 2 === 0){
+                this.push(new Passenger(this.tickCount));
+            }
             return;
         }
     }
@@ -637,7 +637,7 @@ getSimulationData = function(hours,seed){
     // trains number of trains has to be set in the beginning, so that the data container can be set up properly
 
     sst.addTrainAtTick(5, true);
-    sst.addTrainAtTick(5, false);
+    sst.addTrainAtTick(6, false);
 
     // Begin ticking the world
     totalTicks = hours * 60 * 60;

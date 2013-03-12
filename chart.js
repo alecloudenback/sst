@@ -8,28 +8,32 @@ var svg = d3.select('body').append('svg')
     .append('g')
         .attr('transform', 'translate(' + margin.left + ',' + margin.top +')');
 
-var xScale = d3.time.scale()
-                .range([0,width]);
-var yScale = d3.scale.linear()
-                .range([height, 0]);
 
-var xAxis = d3.svg.axis()
-                .scale(xScale)
-                .orient('bottom');
-var yAxis = d3.svg.axis()
-                .scale(yScale)
-                .orient('left');
-
-var line = d3.svg.line()
-                .x(function(d, i) {return xScale(new Date(2013, 2, 10, 5, 0, i));})
-                .y(function(d, i) { return yScale(d)});
 
 // run simulation from sst
-hours = 20; // how many hours should the model run?
+hours = 2; // how many hours should the model run?
 dataObject = getSimulationData(hours);
 
 // Waiting time data
 function drawWaitData(dataObj) {
+    //function to draw line
+    var line = d3.svg.line()
+                    .x(function(d, i) {return xScale(new Date(2013, 2, 10, 5, 0, i));})
+                    .y(function(d, i) { return yScale(d)});
+
+    //Axis and scale info
+    var xScale = d3.time.scale()
+                    .range([0,width]);
+    var yScale = d3.scale.linear()
+                    .range([height, 0]);
+
+    var xAxis = d3.svg.axis()
+                    .scale(xScale)
+                    .orient('bottom');
+    var yAxis = d3.svg.axis()
+                    .scale(yScale)
+                    .orient('left');
+
     data = d3.map(dataObj.directions);
 
     color = d3.scale.category10();
@@ -97,7 +101,25 @@ var trainSVG = d3.select('body').append('svg')
         .attr('transform', 'translate(' + margin.left + ',' + margin.top / 2 +')');
 
 function drawTrainData(dataObj) {
-    //convert data into array for each train
+
+    //function to draw line
+    var line = d3.svg.line()
+                    .x(function(d, i) {return xScale(new Date(2013, 2, 10, 5, 0, i));})
+                    .y(function(d, i) { return yScale(d)});
+
+    //Axis and scale info
+    var xScale = d3.time.scale()
+                    .range([0,width]);
+    var yScale = d3.scale.linear()
+                    .range([height2, 0]);
+
+    var xAxis = d3.svg.axis()
+                    .scale(xScale)
+                    .orient('bottom');
+    var yAxis = d3.svg.axis()
+                    .scale(yScale)
+                    .orient('left');
+
     data = d3.map(dataObj.trains);
     color = d3.scale.category20();
     color.domain(d3.keys(data));
