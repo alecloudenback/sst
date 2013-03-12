@@ -22,9 +22,11 @@ function Platform(station, leftBound) {
         // determine how many passengers can board given train
         cap = train.passengerSpace();
 
-        // take the fitting number of passengers off of the queue
+        // take the fitting number of passengers off of the queue and waitTimes
         boardingPassengers = this.queue.slice(0,cap-1);
         this.queue = this.queue.slice(cap, this.queue.length);
+        this.waitTimes = this.waitTimes.slice(cap, this.waitTimes.length);
+
 
 
         // pass the boarding passengers to the train
@@ -34,19 +36,25 @@ function Platform(station, leftBound) {
 
     this.tick = function() {
         // generate passengers to enter the queue
-        this.generatePassengers();
+        newPass = this.generatePassengers();
 
-        //reset wait times
-        this.waitTimes = [];
+
 
         // tick the passengers
-        for (i = 0, len = this.queue.length; i < len; i++) {
-            this.waitTimes.push(this.tickCount - this.queue[i].creationTime);
-        }
-        if (len === 0) {
-            this.waitTimes.push(0); // return wait of 0 if no passengers
-        }
+        this.setWaitTimes();
+
         this.tickCount += 1;
+    }
+
+    this.setWaitTimes = function(newPass) {
+        wt = this.waitTimes
+        for (i = 0, len = this.waitTimes.length; i < len; i++) {
+            wt[i] += 1;
+        }
+        // add new data point if new passenger was generated
+        if (newPass) {
+            wt.push(0);
+        }
     }
 
     // generatePassengers creates a number of passengers and inserts them into the queue based on the platform's Poisson process
@@ -56,13 +64,14 @@ function Platform(station, leftBound) {
             // process governing passener creation
             if (Math.random() < this.lambda() / (60 * 60)) { // assumes hourly lambda
                 this.push(new Passenger(this.tickCount));
+                return true
             }
 
             // Deterministic passenger creation
             // if (this.tickCount % 2 === 0){
             //     this.push(new Passenger(this.tickCount));
             // }
-            return;
+            return false;
         }
     }
 }
@@ -619,7 +628,9 @@ getSimulationData = function(hours,seed){
     // disable passenger generation at two end platforms
     sst.line.leftMost.right.here.leftBoundPlatform.shouldGeneratePassengers = false;
     sst.line.rightMost.left.here.rightBoundPlatform.shouldGeneratePassengers = false;
-    // generate trains ( in order of last to depart)
+
+
+    // generate trains
     // trains number of trains has to be set in the beginning, so that the data container can be set up properly
 
     sst.addTrainAtTick(5, true);
