@@ -80,9 +80,9 @@ This is the variables being principally investigated, i.e. the project seeks to 
 -   Number of passengers on platforms (waiting)
 -   Headway distribution
 
-Interesting Notes
+Issues
 -------------------
 
--   Trains being evenly spaced is an unstable condition. The system degenerates into bunching if either the passenger arrival is random or the trains don't start exactly at the same time at opposite ends
+-   Can add multiple stations, but passengers don't have a behavior other than getting off at the next stop
 
 
