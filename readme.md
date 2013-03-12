@@ -42,8 +42,8 @@ Model Overview
 
 Trains collect passengers and transport them to their destination with limited stations. Passengers wait on platform and are picked up at intervals by a limited-capacity train. Passengers vary time-dependently.
 
-Model Components
-----------------
+Model Components and Assumptions
+---------------------------------
 
 **Scenario**
 
