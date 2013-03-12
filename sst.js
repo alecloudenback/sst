@@ -62,15 +62,16 @@ function Platform(station, leftBound) {
         // if this is the last platform in a given direction, don't generate passengers
         if (this.shouldGeneratePassengers ) {
             // process governing passener creation
-            if (Math.random() < this.lambda() / (60 * 60)) { // assumes hourly lambda
-                this.push(new Passenger(this.tickCount));
-                return true
-            }
+            // if (Math.random() < this.lambda() / (60 * 60)) { // assumes hourly lambda
+            //     this.push(new Passenger(this.tickCount));
+            //     return true
+            // }
 
             // Deterministic passenger creation
-            // if (this.tickCount % 2 === 0){
-            //     this.push(new Passenger(this.tickCount));
-            // }
+            if (this.tickCount % 2 === 0){
+                this.push(new Passenger(this.tickCount));
+            return true;
+            }
             return false;
         }
     }

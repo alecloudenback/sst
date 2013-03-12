@@ -1,5 +1,5 @@
 var margin = {top: 20, right: 60, bottom: 30, left: 60};
-var width = 1900 - margin.left - margin.right,
+var width = 19000 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
 var svg = d3.select('body').append('svg')
@@ -11,7 +11,7 @@ var svg = d3.select('body').append('svg')
 
 
 // run simulation from sst
-hours = 50; // how many hours should the model run?
+hours = 200; // how many hours should the model run?
 dataObject = getSimulationData(hours);
 
 // Waiting time data
