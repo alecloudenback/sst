@@ -592,8 +592,8 @@ function World() {
             this.trains.push(new Train(this.line.leftMost,false));
         }
     }
-    this.addTrainAtTick = function(tick, leftMost) {
-        if (leftMost) {
+    this.addTrainAtTick = function(tick, starOnLeftB) {
+        if (starOnLeftB) {
          this.trains.push(new Train(this.trains.length, this.line.leftMost, true, tick));
         } else {
          this.trains.push(new Train(this.trains.length, this.line.rightMost, false, tick));
@@ -601,7 +601,7 @@ function World() {
     }
 
 }
-
+// add a route to the world based on the passed on route
 var generateRoute = function (world, route) {
 
     // build the route right to left
@@ -624,9 +624,21 @@ var generateRoute = function (world, route) {
     // insert end terminus
     sst.line.insertBeginning(new RouteSegment(new Terminus()));
 
+    // disable passenger generation at two end platforms
+    sst.line.leftMost.right.here.leftBoundPlatform.shouldGeneratePassengers = false;
+    sst.line.rightMost.left.here.rightBoundPlatform.shouldGeneratePassengers = false;
+
+}
+// add trains to the world based on the array of train options passed
+var generateTrains = function (world, trains) {
+    // generate trains
+    // trains number of trains has to be set in the beginning, so that the data container can be set up properly
+    for (var i = 0, len = trains.length; i < len; i++) {
+        sst.addTrainAtTick(trains[i].startTime, trains[i].startOnLeft )
+    }
 }
 // Run the model
-getSimulationData = function(hours,route,seed){
+getSimulationData = function(hours,route,trains,seed){
 
     // if seed exists, use it, else just store the generated seed
     if (seed) {
@@ -639,16 +651,7 @@ getSimulationData = function(hours,route,seed){
 
     generateRoute(sst, route);
 
-    // disable passenger generation at two end platforms
-    sst.line.leftMost.right.here.leftBoundPlatform.shouldGeneratePassengers = false;
-    sst.line.rightMost.left.here.rightBoundPlatform.shouldGeneratePassengers = false;
-
-
-    // generate trains
-    // trains number of trains has to be set in the beginning, so that the data container can be set up properly
-
-    sst.addTrainAtTick(5, true);
-    sst.addTrainAtTick(6, false);
+    generateTrains(sst, trains);
 
     // Begin ticking the world
     totalTicks = hours * 60 * 60;
