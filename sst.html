@@ -21,9 +21,21 @@ var run1 = {
     width : 1900,
     height: 500,
     hours: 2,
+    randSeed: 'abc',
+    route: [
+        {kind: 'station'},
+        {kind: 'track' , trackLength: 400},
+        {kind: 'track' , trackLength: 400},
+        {kind: 'track' , trackLength: 1000},
+        {kind: 'track' , trackLength: 400},
+        {kind: 'track' , trackLength: 400},
+        {kind: 'station'}
+    ]
 }
 
 runModel(run1);
+
+
 </script>
 </body>
 </html>

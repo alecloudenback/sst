@@ -602,9 +602,31 @@ function World() {
 
 }
 
+var generateRoute = function (world, route) {
 
+    // build the route right to left
+
+    var stationCount = 0;
+
+    //insert start terminus
+    sst.line.insertBeginning(new RouteSegment(new Terminus()));
+
+    for (var i = 0, len = route.length; i < len; i++) {
+        if (route[i].kind === 'station') {
+            sst.line.insertBeginning(new RouteSegment(new Station(stationCount)));
+            stationCount += 1
+        }
+        if (route[i].kind === 'track') {
+            sst.line.insertBeginning(new RouteSegment(new Track(route[i].trackLength)));
+        }
+    }
+
+    // insert end terminus
+    sst.line.insertBeginning(new RouteSegment(new Terminus()));
+
+}
 // Run the model
-getSimulationData = function(hours,seed){
+getSimulationData = function(hours,route,seed){
 
     // if seed exists, use it, else just store the generated seed
     if (seed) {
@@ -615,16 +637,7 @@ getSimulationData = function(hours,seed){
     sst = new World();
 
 
-    // build the route right to left
-    sst.line.insertBeginning(new RouteSegment(new Terminus()));
-    sst.line.insertBeginning(new RouteSegment(new Station(0)));
-    sst.line.insertBeginning(new RouteSegment(new Track(400)));
-    sst.line.insertBeginning(new RouteSegment(new Track(400)));
-    sst.line.insertBeginning(new RouteSegment(new Track(1000)));
-    sst.line.insertBeginning(new RouteSegment(new Track(400)));
-    sst.line.insertBeginning(new RouteSegment(new Track(400)));
-    sst.line.insertBeginning(new RouteSegment(new Station(1)));
-    sst.line.insertBeginning(new RouteSegment(new Terminus()));
+    generateRoute(sst, route);
 
     // disable passenger generation at two end platforms
     sst.line.leftMost.right.here.leftBoundPlatform.shouldGeneratePassengers = false;
