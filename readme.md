@@ -85,4 +85,12 @@ Issues
 
 -   Can add multiple stations, but passengers don't have a behavior other than getting off at the next stop
 
+Next Steps
+-----------------
+1.  Configure model to run based on configuration object.
+2.  Add dispatcher.
+3.  Add multi-station passenger behavior
+
+
+
 

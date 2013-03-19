@@ -1,6 +1,8 @@
+var runModel = function(config) {
+
 var margin = {top: 20, right: 60, bottom: 30, left: 60};
-var width = 1900 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+var width = config.width - margin.left - margin.right,
+    height = config.height - margin.top - margin.bottom;
 
 var svg = d3.select('body').append('svg')
     .attr('width', width + margin.left + margin.right)
@@ -11,8 +13,7 @@ var svg = d3.select('body').append('svg')
 
 
 // run simulation from sst
-hours = 20; // how many hours should the model run?
-dataObject = getSimulationData(hours);
+dataObject = getSimulationData(config.hours);
 
 // Waiting time data
 function drawWaitData(dataObj) {
@@ -177,3 +178,4 @@ function drawTrainData(dataObj) {
 }
 drawWaitData(dataObject);
 drawTrainData(dataObject);
+}
