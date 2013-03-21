@@ -17,13 +17,42 @@
 <!-- Run and display model -->
 
 <script>
-var run1 = {
+// var baseRun = {
+//     width : 1900,
+//     height: 500,
+//     hours: 20,
+//     randSeed: 'abc',
+//     route: [
+//         {kind: 'station'},
+//         {kind: 'track' , trackLength: 400},
+//         {kind: 'track' , trackLength: 400},
+//         {kind: 'track' , trackLength: 1000},
+//         {kind: 'track' , trackLength: 400},
+//         {kind: 'track' , trackLength: 400},
+//         {kind: 'station'}
+//     ],
+//     trains: [
+//         { startOnLeft: false, startTime: 5 },
+//         { startOnLeft: true, startTime: 6 }
+
+//     ]
+// }
+
+// runModel(baseRun);
+
+var multiStation = {
     width : 1900,
     height: 500,
     hours: 20,
     randSeed: 'abc',
     route: [
         {kind: 'station'},
+        {kind: 'track' , trackLength: 400},
+        {kind: 'track' , trackLength: 400},
+        {kind: 'track' , trackLength: 1000},
+        {kind: 'track' , trackLength: 400},
+        {kind: 'track' , trackLength: 400},
+        {kind: 'station', attractiveness: 1},
         {kind: 'track' , trackLength: 400},
         {kind: 'track' , trackLength: 400},
         {kind: 'track' , trackLength: 1000},
@@ -38,7 +67,7 @@ var run1 = {
     ]
 }
 
-runModel(run1);
+runModel(multiStation);
 
 
 </script>

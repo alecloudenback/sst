@@ -239,12 +239,60 @@ function Train(id,startSeg, leftBound, pauseTicks) {
         }
     }
 
-    }
+}
 
 function Route(leftMost, rightMost) {
     //both should be terminus
     this.leftMost = leftMost;
     this.rightMost = rightMost;
+
+
+    // interpolateAttractiveness
+    // based on given station attractiveness, interpolate other station values
+    this.interpolateAttractiveness = function() {
+        var cur = this.leftMost;
+        var stationCount = 0;
+        //create array of attractiveness values
+        attr = [];
+
+        while (cur) {
+            if (cur.here instanceof Station) {
+                if (cur.here.attractiveness) {
+                    attr[stationCount] = cur.here.attractiveness;
+                } else {
+                    attr[stationCount] = undefined;
+                }
+                stationCount += 1;
+            }
+            cur = cur.right;
+        }
+        // interpolate missing values, with min being the value to interpolate from if not bounded
+        var linearInt = function(arr,min) {
+            for (i = 0, len = arr.length; i < len; i++) {
+                if (!arr[i]) {
+                    a = arr[i-1] || min;
+                    b = arr[i+1] || min;
+                    arr[i] = a + (b-a)/2;
+                }
+            }
+            return arr;
+        }
+        // interpolate missing values
+        attr = linearInt(attr,.1);
+
+        // loop back through and assign attractiveness
+        cur = this.leftMost;
+        stationCount = 0;
+        while (cur) {
+            if (cur.here instanceof Station) {
+
+                cur.here.attractiveness = attr[stationCount];
+                stationCount += 1;
+            }
+            cur = cur.right;
+        }
+
+    }
 
     // insertAfter(RouteSegment, RouteSegment )
     // Insert a RouteSegment, seg, to the left of the leftmost location
@@ -409,9 +457,9 @@ function Track(len) {
     }
     this.safeToProceed = function(left) {
         if (left) {
-                return !this.hasLeftBoundTrain;
+            return !this.hasLeftBoundTrain;
         } else {
-                return !this.hasRightBoundTrain;
+            return !this.hasRightBoundTrain;
         }
     }
 
@@ -420,7 +468,7 @@ function Track(len) {
 // Station
 // A Station is where passengers may board and exit the train
 function Station(id, attractiveness) {
-    this.attractiveness = attractiveness;
+    this.attractiveness = attractiveness; // should be between 0 and 1
     this.id = id;
     this.hasLeftBoundTrain = false;
     this.hasRightBoundTrain = false;
@@ -475,9 +523,9 @@ function Station(id, attractiveness) {
 
     this.safeToProceed = function(left) {
         if (left) {
-                return !this.hasLeftBoundTrain;
+            return !this.hasLeftBoundTrain;
         } else {
-                return !this.hasRightBoundTrain;
+            return !this.hasRightBoundTrain;
         }
     }
     this.addParentSegment = function(seg) {
@@ -575,7 +623,7 @@ function World() {
                 // train is heading right, so subtract distance left to go
                 return this.distanceFromLeft(train.currentSegment) + train.distanceOnTrack;
             }
-    }
+        }
 
     // return array of where trains are located
     this.trainLocations = function() {
@@ -597,11 +645,11 @@ function World() {
     }
     this.addTrainAtTick = function(tick, starOnLeftB) {
         if (starOnLeftB) {
-         this.trains.push(new Train(this.trains.length, this.line.leftMost, true, tick));
-        } else {
-         this.trains.push(new Train(this.trains.length, this.line.rightMost, false, tick));
-        }
-    }
+           this.trains.push(new Train(this.trains.length, this.line.leftMost, true, tick));
+       } else {
+           this.trains.push(new Train(this.trains.length, this.line.rightMost, false, tick));
+       }
+   }
 
 }
 // add a route to the world based on the passed on route
@@ -616,7 +664,7 @@ var generateRoute = function (world, route) {
 
     for (var i = 0, len = route.length; i < len; i++) {
         if (route[i].kind === 'station') {
-            sst.line.insertBeginning(new RouteSegment(new Station(stationCount)));
+            sst.line.insertBeginning(new RouteSegment(new Station(stationCount, route[i].attractiveness)));
             stationCount += 1
         }
         if (route[i].kind === 'track') {
@@ -654,6 +702,7 @@ getSimulationData = function(hours,route,trains,seed){
 
 
     generateRoute(sst, route);
+    sst.line.interpolateAttractiveness(); // set attractiveness for each station
 
     generateTrains(sst, trains);
 
@@ -675,14 +724,14 @@ getSimulationData = function(hours,route,trains,seed){
         trains: [],
         seed : randomSeed,
     }
-        for (var numTrain = 0, len = sst.trains.length; numTrain < len; numTrain++) {
-            data.trains[numTrain] = {
-                leftDist: [],
+    for (var numTrain = 0, len = sst.trains.length; numTrain < len; numTrain++) {
+        data.trains[numTrain] = {
+            leftDist: [],
             }; // initialize object
         }
 
 
-    for (t = 0; t < totalTicks ; t++) {
+        for (t = 0; t < totalTicks ; t++) {
         //tick the world forward
         sst.tick();
 
