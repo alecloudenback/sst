@@ -592,6 +592,7 @@ function meanArray(arr) {
 function World() {
     // A World starts with a Station
     this.line = new Route();
+    this.platforms = [];
     this.trains = [];
     this.tickCount = 0;
     this.tick = function() {
@@ -638,11 +639,7 @@ function World() {
         }
         return dist;
     }
-    this.generateTrains = function(numleft, numright) {
-        for (i = numleft; i > 0; i--) {
-            this.trains.push(new Train(this.line.leftMost,false));
-        }
-    }
+
     this.addTrainAtTick = function(tick, starOnLeftB) {
         if (starOnLeftB) {
            this.trains.push(new Train(this.trains.length, this.line.leftMost, true, tick));
@@ -651,41 +648,41 @@ function World() {
        }
    }
 
-}
-// add a route to the world based on the passed on route
-var generateRoute = function (world, route) {
+    // add a route to the world based on the passed on route
+    this.generateRoute = function(route) {
 
-    // build the route right to left
+        // build the route right to left
 
-    var stationCount = 0;
+        var stationCount = 0;
 
-    //insert start terminus
-    sst.line.insertBeginning(new RouteSegment(new Terminus()));
+        //insert start terminus
+        this.line.insertBeginning(new RouteSegment(new Terminus()));
 
-    for (var i = 0, len = route.length; i < len; i++) {
-        if (route[i].kind === 'station') {
-            sst.line.insertBeginning(new RouteSegment(new Station(stationCount, route[i].attractiveness)));
-            stationCount += 1
+        for (var i = 0, len = route.length; i < len; i++) {
+            if (route[i].kind === 'station') {
+                this.line.insertBeginning(new RouteSegment(new Station(stationCount, route[i].attractiveness)));
+                stationCount += 1
+            }
+            if (route[i].kind === 'track') {
+                this.line.insertBeginning(new RouteSegment(new Track(route[i].trackLength)));
+            }
         }
-        if (route[i].kind === 'track') {
-            sst.line.insertBeginning(new RouteSegment(new Track(route[i].trackLength)));
-        }
+
+        // insert end terminus
+        this.line.insertBeginning(new RouteSegment(new Terminus()));
+
+        // disable passenger generation at two end platforms
+        this.line.leftMost.right.here.leftBoundPlatform.shouldGeneratePassengers = false;
+        this.line.rightMost.left.here.rightBoundPlatform.shouldGeneratePassengers = false;
+
     }
-
-    // insert end terminus
-    sst.line.insertBeginning(new RouteSegment(new Terminus()));
-
-    // disable passenger generation at two end platforms
-    sst.line.leftMost.right.here.leftBoundPlatform.shouldGeneratePassengers = false;
-    sst.line.rightMost.left.here.rightBoundPlatform.shouldGeneratePassengers = false;
-
-}
-// add trains to the world based on the array of train options passed
-var generateTrains = function (world, trains) {
-    // generate trains
-    // trains number of trains has to be set in the beginning, so that the data container can be set up properly
-    for (var i = 0, len = trains.length; i < len; i++) {
-        sst.addTrainAtTick(trains[i].startTime, trains[i].startOnLeft )
+    // add trains to the world based on the array of train options passed
+    this.generateTrains = function(trains) {
+        // generate trains
+        // trains number of trains has to be set in the beginning, so that the data container can be set up properly
+        for (var i = 0, len = trains.length; i < len; i++) {
+            this.addTrainAtTick(trains[i].startTime, trains[i].startOnLeft )
+        }
     }
 }
 
@@ -701,10 +698,10 @@ getSimulationData = function(hours,route,trains,seed){
     sst = new World();
 
 
-    generateRoute(sst, route);
+    sst.generateRoute(route);
     sst.line.interpolateAttractiveness(); // set attractiveness for each station
 
-    generateTrains(sst, trains);
+    sst.generateTrains(trains);
 
     // Begin ticking the world
     totalTicks = hours * 60 * 60;
@@ -728,7 +725,7 @@ getSimulationData = function(hours,route,trains,seed){
         data.trains[numTrain] = {
             leftDist: [],
             }; // initialize object
-        }
+    }
 
 
         for (t = 0; t < totalTicks ; t++) {
