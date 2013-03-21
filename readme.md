@@ -93,7 +93,7 @@ Next Steps
 4.  Add time-dependent poisson process
 
 Ideas for passenger behavior:
--   use psuedo-gravity model and assign destination on passenger creation. Assign certain stations as 'attractors' where in the morning traffic tends to go towards them and in the afternoon, traffic tends to go away from them. Have 'attractiveness' scale down from the assigned 'attractive' stations. Swtich to having passengers generated at station vs platform (?)
+-   use psuedo-gravity model and assign destination on passenger creation. Assign certain stations as 'attractors' where in the morning traffic tends to go towards them and in the afternoon, traffic tends to go away from them. Have 'attractiveness' scale down from the assigned 'attractive' stations. Swtich to having passengers generated at station vs platform (?). Add 'overall activity level' to be able to roughly scale entire system?
 
 References
 ------------

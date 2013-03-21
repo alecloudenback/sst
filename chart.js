@@ -35,24 +35,29 @@ function drawWaitData(dataObj) {
                     .scale(yScale)
                     .orient('left');
 
-    data = d3.map(dataObj.directions);
+    data = (dataObj.stations;
 
-    color = d3.scale.category10();
+    color = d3.scale.category20();
     color.domain(d3.keys(data));
 
-    var waitTimes = color.domain().map(function(name) {
-        return {
-            name: name,
-            values: data[name].queueLength,
-        }
-    })
+    console.log(dataObj.stations,stations);
+    var stations = data;
+    console.log(data,stations);
+    // var stations = color.domain().map(function(name) {
+    //     return {
+    //         name: name,
+    //         values: data[name].queueLength,
+    //     }
+    // })
 
-    xScale.domain(d3.extent(waitTimes[0].values, function(d,i) { return new Date(2013, 2, 10, 5, 0, i);}));
-    xScale.ticks(d3.time.hours, 1);
+    // pass one of the data values and return an array based on the length i
+    xScale.domain(d3.extent(stations[0].leftBound.waitTimes, function(d,i) { return new Date(2013, 2, 10, 5, 0, i);}));
+    xScale.ticks(d3.time.hours, 1); // set the ticks
+
     // go through each direction and find the maximum value
     yScale.domain([
-        d3.min(waitTimes, function(p) {return d3.min(p.values)}),
-        d3.max(waitTimes, function(p) {return d3.max(p.values)})
+        d3.min(stations, function(p) {return d3.min(p.values)}),
+        d3.max(stations, function(p) {return d3.max(p.values)})
         ]);
 
     svg.append('g')
@@ -71,7 +76,7 @@ function drawWaitData(dataObj) {
             .text('Total Delay');
 
     var waitTime = svg.selectAll('.waitTime')
-                        .data(waitTimes)
+                        .data(stations)
                         .enter().append('g')
                         .attr('class', 'waitTime');
 

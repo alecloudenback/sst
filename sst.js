@@ -330,6 +330,7 @@ function Route(leftMost, rightMost) {
         } else {
             this.insertBefore(this.leftMost,newSeg);
         }
+        return newSeg;
     }
 
     // print route
@@ -592,7 +593,7 @@ function meanArray(arr) {
 function World() {
     // A World starts with a Station
     this.line = new Route();
-    this.platforms = [];
+    this.stations = [];
     this.trains = [];
     this.tickCount = 0;
     this.tick = function() {
@@ -642,11 +643,11 @@ function World() {
 
     this.addTrainAtTick = function(tick, starOnLeftB) {
         if (starOnLeftB) {
-           this.trains.push(new Train(this.trains.length, this.line.leftMost, true, tick));
-       } else {
-           this.trains.push(new Train(this.trains.length, this.line.rightMost, false, tick));
-       }
-   }
+         this.trains.push(new Train(this.trains.length, this.line.leftMost, true, tick));
+     } else {
+         this.trains.push(new Train(this.trains.length, this.line.rightMost, false, tick));
+     }
+ }
 
     // add a route to the world based on the passed on route
     this.generateRoute = function(route) {
@@ -660,8 +661,10 @@ function World() {
 
         for (var i = 0, len = route.length; i < len; i++) {
             if (route[i].kind === 'station') {
-                this.line.insertBeginning(new RouteSegment(new Station(stationCount, route[i].attractiveness)));
+                stationSeg = this.line.insertBeginning(new RouteSegment(new Station(stationCount, route[i].attractiveness)));
+                this.stations[stationCount] = stationSeg.here; // add the created station to the easy-to-access array of stations
                 stationCount += 1
+
             }
             if (route[i].kind === 'track') {
                 this.line.insertBeginning(new RouteSegment(new Track(route[i].trackLength)));
@@ -708,24 +711,35 @@ getSimulationData = function(hours,route,trains,seed){
 
     // set up data container
     data = {
-        directions: {
-            leftBound : {
-                waitTimes : [],
-                queueLength : [],
-            },
-            rightBound : {
-                waitTimes : [],
-                queueLength : [],
-            },
-        },
+        stations: [],
         trains: [],
         seed : randomSeed,
     }
-    for (var numTrain = 0, len = sst.trains.length; numTrain < len; numTrain++) {
-        data.trains[numTrain] = {
+
+    var stationCount = sst.stations.length;
+    var trainCount = sst.trains.length;
+
+    //set up train data object
+    for (var trainNum = 0; trainNum < trainCount; trainNum++) {
+        data.trains[trainNum] = {
             leftDist: [],
-            }; // initialize object
+            };
+        }
+
+    // set up station data object
+    for (var statNum = 0; statNum < stationCount; statNum++) {
+        data.stations[statNum] = {
+            leftBound: {
+                waitTimes : [],
+                queueLength : [],
+            },
+            rightBound: {
+                waitTimes : [],
+                queueLength : [],
+            },
+        };
     }
+
 
 
         for (t = 0; t < totalTicks ; t++) {
@@ -734,30 +748,22 @@ getSimulationData = function(hours,route,trains,seed){
 
         // collect data
         ////////////////////////////
-        lb = sst.line.rightMost.left.here.leftBoundPlatform;
-        lbData = data.directions.leftBound;
-        lbData.waitTimes.push(sumArray(lb.waitTimes));
-        lbData.queueLength.push(lb.queue.length);
 
-        rb = sst.line.leftMost.right.here.rightBoundPlatform;
-        rbData = data.directions.rightBound;
-        rbData.waitTimes.push(sumArray(rb.waitTimes));
-        rbData.queueLength.push(rb.queue.length);
+        // station data
+        for (var statNum = 0; statNum < stationCount; statNum++) {
+            d = data.stations[statNum];
+            s = sst.stations[statNum];
+            d.leftBound.waitTimes.push(sumArray(s.leftBoundPlatform.waitTimes));
+            d.leftBound.queueLength.push(sumArray(s.leftBoundPlatform.queue.length));
+            d.rightBound.waitTimes.push(sumArray(s.rightBoundPlatform.waitTimes));
+            d.rightBound.queueLength.push(sumArray(s.rightBoundPlatform.queue.length));
 
-        for (var numTrain = 0, len = sst.trains.length; numTrain < len; numTrain++) {
-            data.trains[numTrain].leftDist.push(sst.trainLocation(sst.trains[numTrain]));
         }
-        // console.log("tick", t, sst.trains[0].currentSegment, data.trains.locations[t])
 
-        // Time dependent behaviors
-        /////////////////////////////
-
-
-        // Print world to console for debugging purposes
-        // if (sst.tickCount > 58360 && sst.tickCount < 58375) {
-        //     peek = sst.line.rightMost.here.leftBoundPlatform;
-        //     console.log(sst.tickCount, peek, peek.waitTimes, meanArray(peek.waitTimes));
-        // }
+        // train data
+        for (var trainNum = 0; trainNum < trainCount; trainNum++) {
+            data.trains[trainNum].leftDist.push(sst.trainLocation(sst.trains[trainNum]));
+        }
 
 
     }
