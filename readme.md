@@ -90,6 +90,14 @@ Next Steps
 1.  Configure model to run based on configuration object.
 2.  Add dispatcher.
 3.  Add multi-station passenger behavior
+4.  Add time-dependent poisson process
+
+Ideas for passenger behavior:
+-   use gravity model and assign destination on passenger creation. Assign certain stations as 'attractors' where in the morning traffic tends to go towards them and in the afternoon, traffic tends to go away from them. Have 'attractiveness' scale down from the assigned 'attractive' stations. Swtich to having passengers generated at station vs platform (?)
+
+References
+------------
+http://www.cts.umn.edu/trg/publications/pdfreport/TRGrpt2.pdf
 
 
 

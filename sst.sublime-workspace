@@ -11,7 +11,7 @@
 			"file": "sst.js",
 			"settings":
 			{
-				"buffer_size": 20218,
+				"buffer_size": 20596,
 				"line_ending": "Windows"
 			}
 		},
@@ -28,7 +28,7 @@
 			"file": "sst.html",
 			"settings":
 			{
-				"buffer_size": 677,
+				"buffer_size": 1238,
 				"line_ending": "Windows"
 			}
 		}
@@ -109,7 +109,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 20218,
+						"buffer_size": 20596,
 						"regions":
 						{
 						},
@@ -165,15 +165,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 677,
+						"buffer_size": 1238,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								6,
-								6
+								0,
+								0
 							]
 						],
 						"settings":

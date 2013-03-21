@@ -417,7 +417,8 @@ function Track(len) {
 
 // Station
 // A Station is where passengers may board and exit the train
-function Station(id) {
+function Station(id, attractiveness) {
+    this.attractiveness = attractiveness;
     this.id = id;
     this.hasLeftBoundTrain = false;
     this.hasRightBoundTrain = false;
@@ -637,6 +638,7 @@ var generateTrains = function (world, trains) {
         sst.addTrainAtTick(trains[i].startTime, trains[i].startOnLeft )
     }
 }
+
 // Run the model
 getSimulationData = function(hours,route,trains,seed){
 
