@@ -13,7 +13,7 @@ var svg = d3.select('body').append('svg')
 
 
 // run simulation from sst
-dataObject = getSimulationData(config.hours, config.route, config.trains, config.randSeed);
+dataObject = sst(config.hours, config.route, config.trains, config.randSeed);
 
 // Waiting time data
 function drawWaitData(dataObj) {

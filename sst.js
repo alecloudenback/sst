@@ -1,3 +1,5 @@
+var sst = function(hours,route,trains,seed) {
+
 // platform
 function Platform(station, leftBound) {
     this.queue = [];
@@ -717,4 +719,5 @@ getSimulationData = function(hours,route,trains,seed){
     return data;
 
 };
-
+return getSimulationData(hours,route,trains,seed);
+};
