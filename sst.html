@@ -41,9 +41,9 @@
 // runModel(baseRun);
 
 var multiStation = {
-    width : 1900,
-    height: 500,
-    hours: 20,
+    width : 1600,
+    height: 300,
+    hours: 4,
     randSeed: 'abc',
     route: [
         {kind: 'station'},
@@ -58,11 +58,19 @@ var multiStation = {
         {kind: 'track' , trackLength: 1000},
         {kind: 'track' , trackLength: 400},
         {kind: 'track' , trackLength: 400},
+        {kind: 'station'},
+        {kind: 'track' , trackLength: 400},
+        {kind: 'track' , trackLength: 400},
+        {kind: 'track' , trackLength: 1000},
+        {kind: 'track' , trackLength: 400},
+        {kind: 'track' , trackLength: 400},
         {kind: 'station'}
     ],
     trains: [
         { startOnLeft: false, startTime: 5 },
-        { startOnLeft: true, startTime: 6 }
+        { startOnLeft: true, startTime: 5 },
+        { startOnLeft: false, startTime:60 },
+        { startOnLeft: true, startTime: 60 }
 
     ]
 }

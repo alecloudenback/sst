@@ -43,13 +43,13 @@ function Platform(station, leftBound) {
 
 
         // tick the passengers
-        this.setWaitTimes();
+        this.setWaitTimes(newPass);
 
         this.tickCount += 1;
     }
 
     this.setWaitTimes = function(newPass) {
-        wt = this.waitTimes
+        wt = this.waitTimes;
         for (i = 0, len = this.waitTimes.length; i < len; i++) {
             wt[i] += 1;
         }
@@ -754,9 +754,9 @@ getSimulationData = function(hours,route,trains,seed){
             d = data.stations[statNum];
             s = sst.stations[statNum];
             d.leftBound.waitTimes.push(sumArray(s.leftBoundPlatform.waitTimes));
-            d.leftBound.queueLength.push(sumArray(s.leftBoundPlatform.queue.length));
+            d.leftBound.queueLength.push(s.leftBoundPlatform.queue.length);
             d.rightBound.waitTimes.push(sumArray(s.rightBoundPlatform.waitTimes));
-            d.rightBound.queueLength.push(sumArray(s.rightBoundPlatform.queue.length));
+            d.rightBound.queueLength.push(s.rightBoundPlatform.queue.length);
 
         }
 
