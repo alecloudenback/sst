@@ -12,6 +12,8 @@ dataObject = sst(config.hours, config.route, config.trains, config.randSeed);
 
 // Waiting time data
 function drawWaitData(dataObj) {
+
+    // structure the data to be divided along direction and set the 'displayVals' (the data to be displayed in chart)
     var convertStationtoDirectionData = function(statData,dir,displayVals) {
         var arr = [];
         for (var i = 0, len = statData.length; i < len; i++) {

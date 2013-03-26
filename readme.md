@@ -85,6 +85,7 @@ Issues
 
 -   Can add multiple stations, but passengers don't have a behavior other than getting off at the next stop
 -   On chart, each direction doesn't have different colors
+-   Refactor list to avoid overhead (?)
 
 Next Steps
 -----------------
