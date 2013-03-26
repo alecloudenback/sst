@@ -9,29 +9,29 @@ function Passenger(tick) {
         //calculate distance-weighted attractiveness for each station
         var wa = []; //weighted-attractiveness
         for (i = 0, len = statArr.length; i < len; i++) {
-            if (statArr === curStat) {
+            if (statArr[i] === curStat) {
                 wa[i] = 0;
             } else {
                 dist = Math.abs(curStat.distanceFrom(statArr[i]));
                 wa[i] = statArr[i].attractiveness / dist;
             }
         }
-
+        console.log('pn', wa)
         // normalize the options to be from 0 to 1
-        ratio = Math.max.apply(this,wa); //find the max value
+        ratio = sumArray(wa); //find the sum of value
         for (i = 0; i < len; i++) {
             prev = wa[i-1] || 0; // what number to be at the bottom of the range
             wa[i] = wa[i] / ratio + prev;
         }
-
         //decide what station to go to
         rand = Math.random();
+        console.log(ratio,rand, wa);
         i = 0;
         while (rand > wa[i]) {
             i++;
         }
-
         this.destination = statArr[i];
+        console.log('passenger at station', curStat.id, 'heading to', this.destination.id)
     };
 
     this.enter = function(place) {
@@ -321,6 +321,7 @@ function RouteSegment(here, left, right) {
     this.here = here; // The first here should be a terminus
     this.left = left;
     this.right = right;
+
     here.addParentSegment(this);
 
     this.trainEnter = function(train) {
@@ -502,8 +503,12 @@ function Station(id, world, attractiveness, baseLambda) {
                 p.chooseDestination(this,this.world.stations);
                 if (this.distanceFrom(p.destination) < 0 ){
                     // assign to leftBoundPlatform
+                    console.log('left')
                     this.leftBoundPlatform.push(p);
                 } else {
+                   // assign to rightBoundPlatform
+                    console.log('right')
+
                     this.rightBoundPlatform.push(p);
                 }
             }
@@ -520,9 +525,8 @@ function Station(id, world, attractiveness, baseLambda) {
     //give the absolute distance from the given station
     this.distanceFrom = function(stat) {
         // return signed distance so that direction can be discerned
-        console.log(this.parentSeg)
-        d1 = this.parentSeg.distanceFromLeft(this.parentSeg);
-        d2 = stat.parentSeg.distanceFromLeft(stat.parentSeg);
+        d1 = this.routeSeg.distanceFromLeft(this.routeSeg);
+        d2 = stat.routeSeg.distanceFromLeft(stat.routeSeg);
         return  d1 - d2 ;
 
     };
@@ -584,6 +588,7 @@ function Station(id, world, attractiveness, baseLambda) {
             return !this.hasRightBoundTrain;
         }
     };
+
     this.addParentSegment = function(seg) {
         this.routeSeg = seg;
     };

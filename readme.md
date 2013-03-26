@@ -85,7 +85,7 @@ Issues
 
 -   Can add multiple stations, but passengers don't have a behavior other than getting off at the next stop
 -   On chart, each direction doesn't have different colors
--   Refactor list to avoid overhead (?)
+-   Refactor list to avoid overhead (would have to learn more about prototypal chain and inheritance)
 
 Next Steps
 -----------------
@@ -95,7 +95,7 @@ Next Steps
 4.  Add time-dependent poisson process
 
 Ideas for passenger behavior:
--   use psuedo-gravity model and assign destination on passenger creation. Assign certain stations as 'attractors' where in the morning traffic tends to go towards them and in the afternoon, traffic tends to go away from them. Have 'attractiveness' scale down from the assigned 'attractive' stations. Swtich to having passengers generated at station vs platform (?). Add 'overall activity level' to be able to roughly scale entire system?
+-   use psuedo-gravity model and assign destination on passenger creation. Assign certain stations as 'attractors' where in the morning traffic tends to go towards them and in the afternoon, traffic tends to go away from them. Have 'attractiveness' scale down from the assigned 'attractive' stations. Switch to having passengers generated at station vs platform (?). Add 'overall activity level' to be able to roughly scale entire system?
 
 References
 ------------

@@ -11,7 +11,7 @@ var runModel = function(config) {
 dataObject = sst(config.hours, config.route, config.trains, config.randSeed);
 
 // Waiting time data
-function drawWaitData(dataObj) {
+var drawWaitData = function(dataObj) {
 
     // structure the data to be divided along direction and set the 'displayVals' (the data to be displayed in chart)
     var convertStationtoDirectionData = function(statData,dir,displayVals) {
@@ -93,7 +93,7 @@ function drawWaitData(dataObj) {
     waitTime.append('path')
     .attr({
       'class': 'line',
-      'd': function(d) {return line(d.displayVals);},
+      'd': function(d) {return line(d.displayVals);}
   })
     .style('stroke', function(d) {return color(function(d,i) {return i;});});
 
@@ -102,13 +102,13 @@ function drawWaitData(dataObj) {
         .attr({
             'transform': function(d) {return 'translate(' + xScale(d.index) + ',' + yScale(d.value) + ')';},
             'x': 3,
-            'dy': '.35em',
+            'dy': '.35em'
         })
-        .text(function(d) {return d.name;});
-    }
-    drawDirection(leftBound);
+        .text(function(d,i) {return i;});
+    };
     drawDirection(rightBound);
-}
+    drawDirection(leftBound);
+};
 
 // Train location/headway data
 
@@ -119,7 +119,7 @@ var trainSVG = d3.select('body').append('svg')
 .append('g')
 .attr('transform', 'translate(' + margin.left + ',' + margin.top / 2 +')');
 
-function drawTrainData(dataObj) {
+var drawTrainData = function(dataObj) {
 
     //function to draw line
     var line = d3.svg.line()
@@ -143,12 +143,11 @@ function drawTrainData(dataObj) {
     color = d3.scale.category20();
     color.domain(d3.keys(data));
 
-    console.log(data);
 
     var trainLocs = color.domain().map(function(name) {
         return {
             name: name,
-            values: data[name].leftDist,
+            values: data[name].leftDist
         };
     });
 
@@ -184,19 +183,19 @@ function drawTrainData(dataObj) {
     trainDist.append('path')
     .attr({
       'class': 'line',
-      'd': function(d) {return line(d.values);},
+      'd': function(d) {return line(d.values);}
   })
     .style('stroke', function(d) {return color(d.name);});
 
     trainDist.append('text')
         .datum(function(d,i) {return {name: d.name, value: d.values[d.values.length - 1], index: new Date(2013, 2, 10, 5, 0, d.values.length)};}) // convert length to time for proper positioning
         .attr({
-            'transform': function(d) {return 'translate(' + xScale(d.index) + ',' + yScale(d.value) + ')'},
+            'transform': function(d) {return 'translate(' + xScale(d.index) + ',' + yScale(d.value) + ')';},
             'x': 3,
-            'dy': '.35em',
+            'dy': '.35em'
         })
         .text(function(d) {return d.name;});
-    }
+    };
     drawWaitData(dataObject);
     drawTrainData(dataObject);
 }
