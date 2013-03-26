@@ -55,7 +55,7 @@ var drawWaitData = function(dataObj) {
     .orient('left');
 
 
-    color = d3.scale.category20();
+    color = d3.scale.category10(); // can handle 10 stations
     color.domain(d3.keys(dirData));
 
     var platforms = dirData;
@@ -95,7 +95,7 @@ var drawWaitData = function(dataObj) {
       'class': 'line',
       'd': function(d) {return line(d.displayVals);}
   })
-    .style('stroke', function(d) {return color(function(d,i) {return i;});});
+    .style('stroke', function(d,i) {return color(i);});
 
     waitTime.append('text')
         .datum(function(d,i) {return {name: d.name, value: d.displayVals[d.displayVals.length - 1], index: new Date(2013, 2, 10, 5, 0, d.displayVals.length)};}) // convert length to time for proper positioning

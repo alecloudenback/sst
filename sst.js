@@ -16,7 +16,6 @@ function Passenger(tick) {
                 wa[i] = statArr[i].attractiveness / dist;
             }
         }
-        console.log('pn', wa)
         // normalize the options to be from 0 to 1
         ratio = sumArray(wa); //find the sum of value
         for (i = 0; i < len; i++) {
@@ -25,13 +24,11 @@ function Passenger(tick) {
         }
         //decide what station to go to
         rand = Math.random();
-        console.log(ratio,rand, wa);
         i = 0;
         while (rand > wa[i]) {
             i++;
         }
         this.destination = statArr[i];
-        console.log('passenger at station', curStat.id, 'heading to', this.destination.id)
     };
 
     this.enter = function(place) {
@@ -491,7 +488,7 @@ function Station(id, world, attractiveness, baseLambda) {
 
     // lambda is a function so that it can vary in the model
     this.lambda = function() {
-        var factor = 1;
+        var factor = 1 * this.attractiveness;
         return factor * 1000;
     };
 
@@ -503,12 +500,9 @@ function Station(id, world, attractiveness, baseLambda) {
                 p.chooseDestination(this,this.world.stations);
                 if (this.distanceFrom(p.destination) < 0 ){
                     // assign to leftBoundPlatform
-                    console.log('left')
                     this.leftBoundPlatform.push(p);
                 } else {
                    // assign to rightBoundPlatform
-                    console.log('right')
-
                     this.rightBoundPlatform.push(p);
                 }
             }
