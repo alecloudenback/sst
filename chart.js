@@ -8,7 +8,7 @@ var runModel = function(config) {
 
 
 // run simulation from sst
-dataObject = sst(config.hours, config.route, config.trains, config.randSeed);
+dataObject = sst(config.hours, config.route, config.trains,config.useDispatcher, config.randSeed);
 
 // Waiting time data
 var drawWaitData = function(dataObj) {
