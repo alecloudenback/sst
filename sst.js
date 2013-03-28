@@ -681,7 +681,7 @@ function Dispatcher(world,execute) {
     this.strategy = function() {
 
         // Slow down trains that are below the average distance from each other
-        tolerance = .85;
+        tolerance = 0.85;
         avgDist = meanArray(this.headwayDists);
         for (var i = 0, len = this.headwayDists.length; i < len; i++ ){
             if (this.headwayDists[i] < avgDist * tolerance) {
@@ -710,35 +710,45 @@ function Dispatcher(world,execute) {
     // allow concatenation of waitTimes
     this.concatWaitTimes = function(arr) {
         this.waitTimes = this.waitTimes.concat(arr);
-    }
+    };
+
+    // get the distance between two trains
+    this.getHeadwayDist = function(train1, train2) {
+        var d1 = this.world.trainDist(train1, true);
+        var d2 = this.world.trainDist(train2, true);
+        dist = d2 - d1;
+
+        if (dist < 0 ) {
+            // if dist is < 0 'modularly divide' by the loop's length
+            return Math.abs(this.world.line.totalLength * 2 + dist);
+        } else{
+            return Math.abs(dist);
+        }
+
+    };
+
 
     // returns array of headway distances with the distance between train i and i + 1 in array slot i
     this.getHeadwayDists = function() {
         var res = [];
         loop = this.world.line.totalLength * 2;
+
+        // find minimum headway based compared to each other train
         for (var i = 0, tc = this.world.trains.length; i < tc; i++ ) {
-            iAhead = (i + 1) % tc;
+            minDist = loop;
+            //compare to other trains
+            for (var j = 0; j < tc; j++) {
+                if (j != i) { //skip over itself
+                    hd = this.getHeadwayDist(this.world.trains[i], this.world.trains[j]);
+                    if ( hd < minDist) {
+                        //new minDist
+                        minDist = hd;
+                    }
 
-            // subtract from the length of loop if the train is heading 'back' left
-            if (this.world.trains[i].leftBound) {
-                d1 = loop - this.trainDists[i];
-            } else {
-                d1 = this.trainDists[i];
+                }
             }
-
-            if (this.world.trains[iAhead].leftBound) {
-                d2 = loop - this.trainDists[iAhead];
-            } else {
-                d2 = this.trainDists[iAhead];
-            }
-            dist = d2 - d1;
-
-            if (dist < 0 ) {
-                // if dist is < 0 'modularly divide' by the loop's length
-                res[i] = Math.abs(this.world.line.totalLength * 2 + dist);
-            } else{
-                res[i] = Math.abs(dist);
-            }
+            //keep closest match
+            res[i] = minDist;
 
         }
         return res;
@@ -777,13 +787,20 @@ function World(useDispatcher) {
     };
 
     // return how far from the left the train is
-    this.trainDist = function(train) {
+    this.trainDist = function(train, loopDist) {
         if (train.leftBound) {
                 //train is heading left, so subtract distance traveled on segment
-                return this.distanceFromLeft(train.currentSegment.right) - train.distanceOnTrack;
+                var dist =  this.distanceFromLeft(train.currentSegment.right) - train.distanceOnTrack;
             } else {
                 // train is heading right, so subtract distance left to go
-                return this.distanceFromLeft(train.currentSegment) + train.distanceOnTrack;
+                var dist =  this.distanceFromLeft(train.currentSegment) + train.distanceOnTrack;
+            }
+
+            if (loopDist && train.leftBound) {
+                // subtract the train dist from the loop if heading 'back' left
+                return this.line.totalLength * 2 - dist;
+            } else {
+                return dist;
             }
         };
 

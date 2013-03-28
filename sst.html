@@ -45,7 +45,7 @@ var multiStation = {
     width : 1600,
     height: 300,
     hours: 20,
-    useDispatcher: false,
+    useDispatcher: true,
     randSeed: 'abc',
     route: [
         {here: 'station'},
@@ -71,8 +71,8 @@ var multiStation = {
     trains: [
         { startOnLeft: false, startTime: 0 },
         { startOnLeft: true, startTime: 0  },
-        // { startOnLeft: false, startTime:360 },
-        // { startOnLeft: true, startTime: 360 },
+        { startOnLeft: false, startTime:1 },
+        { startOnLeft: true, startTime: 1 },
 
     ]
 }
