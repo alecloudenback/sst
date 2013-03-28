@@ -113,6 +113,10 @@ var drawWaitData = function(dataObj) {
             thead = table.append('thead'),
             tbody = table.append('tbody').append('tr');
 
+        // table styles
+        table.classed('table table-condensed table-bordered', true);
+
+
         // set up data object to display in table
         var tableData = [];
 
@@ -122,10 +126,16 @@ var drawWaitData = function(dataObj) {
         // calculate the average waiting time for the passengers
 
         thead.append('tr').selectAll('th').data(tableData).enter().append('th')
-            .text(function(d) {return d.name;});
+            .text(function(d) {return d.name;})
+            .style({
+            'text-align':'center'
+        });
 
         tbody.selectAll('td').data(tableData).enter().append('td')
-            .text(function(d) {return d.value;});
+            .text(function(d) {return d.value;})
+            .style({
+            'text-align':'center'
+        });
     };
 
     drawDirection(rightBound);
