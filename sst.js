@@ -451,9 +451,15 @@ function Platform(station, leftBound) {
         // take the fitting number of passengers off of the queue and waitTimes
         boardingPassengers = this.queue.slice(0,cap-1);
         this.queue = this.queue.slice(cap, this.queue.length);
+
+        // add the waiting times of passengers boarding to dispatcher (data collection)
+        this.station.world.dispatcher.concatWaitTimes(this.waitTimes.slice(0,cap));
+
         this.waitTimes = this.waitTimes.slice(cap, this.waitTimes.length);
 
 
+        // increment the number of carried passengers (data collection)
+        this.station.world.dispatcher.passengersCarried += boardingPassengers.length;
 
         // pass the boarding passengers to the train
         train.board(boardingPassengers);
@@ -669,6 +675,8 @@ function Dispatcher(world,execute) {
     this.execute = execute;
     this.trainDists = [];
     this.headwayDists = [];
+    this.passengersCarried = 0;
+    this.waitTimes = [];
 
     this.strategy = function() {
 
@@ -698,6 +706,11 @@ function Dispatcher(world,execute) {
     this.getHeadwayTimes = function() {
         // TODO
     };
+
+    // allow concatenation of waitTimes
+    this.concatWaitTimes = function(arr) {
+        this.waitTimes = this.waitTimes.concat(arr);
+    }
 
     // returns array of headway distances with the distance between train i and i + 1 in array slot i
     this.getHeadwayDists = function() {
@@ -911,6 +924,20 @@ getSimulationData = function(hours,route,trains,dispatcher,seed){
 
     }
 
+    // Add data gathered as of end of model run
+    //////////////
+
+    //account for wait times of passengers never picked up
+    for (var i = 0, len = sst.stations.length; i < len; i++) {
+        d = sst.dispatcher;
+        // add leftbound
+        d.concatWaitTimes(sst.stations[i].leftBoundPlatform.waitTimes);
+        //add rightbound
+        d.concatWaitTimes(sst.stations[i].rightBoundPlatform.waitTimes);
+    }
+    data.waitTimes = sst.dispatcher.waitTimes;
+    data.waitTimes.average = meanArray(data.waitTimes);
+    data.passengersCarried = sst.dispatcher.passengersCarried;
     return data;
 
 };

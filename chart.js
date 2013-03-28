@@ -106,8 +106,31 @@ var drawWaitData = function(dataObj) {
         })
         .text(function(d,i) {return i;});
     };
+
+    // write non-graphical data to screen
+    function writeStatistics() {
+        var table = d3.select('body').append('table'),
+            thead = table.append('thead'),
+            tbody = table.append('tbody').append('tr');
+
+        // set up data object to display in table
+        var tableData = [];
+
+        tableData.push({name : 'Total Passengers Carried', value : dataObj.passengersCarried});
+        tableData.push({name : 'Average Passenger Wait Time', value: dataObj.waitTimes.average.toFixed(2)})
+
+        // calculate the average waiting time for the passengers
+
+        thead.append('tr').selectAll('th').data(tableData).enter().append('th')
+            .text(function(d) {return d.name;});
+
+        tbody.selectAll('td').data(tableData).enter().append('td')
+            .text(function(d) {return d.value;});
+    };
+
     drawDirection(rightBound);
     drawDirection(leftBound);
+    writeStatistics();
 };
 
 // Train location/headway data
