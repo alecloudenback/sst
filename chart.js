@@ -121,7 +121,8 @@ var drawWaitData = function(dataObj) {
         var tableData = [];
 
         tableData.push({name : 'Total Passengers Carried', value : dataObj.passengersCarried});
-        tableData.push({name : 'Average Passenger Wait Time', value: dataObj.waitTimes.average.toFixed(2)})
+        tableData.push({name : 'Mean Passenger Wait Time', value: dataObj.waitTimes.average.toFixed(2)});
+        tableData.push({name : 'Median Passenger Wait Time', value: d3.median(dataObj.waitTimes)});
 
         // calculate the average waiting time for the passengers
 
