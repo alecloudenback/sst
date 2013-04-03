@@ -5,10 +5,8 @@ var runModel = function(config) {
     height = config.height - margin.top - margin.bottom;
 
 
-
-
 // run simulation from sst
-dataObject = sst(config.hours, config.route, config.trains,config.useDispatcher, config.randSeed);
+dataObject = sst(config.hours, config.route, config.trains, config.randSeed,config.useDispatcher);
 
 // Waiting time data
 var drawWaitData = function(dataObj) {
@@ -121,9 +119,9 @@ var drawWaitData = function(dataObj) {
         var tableData = [];
 
         tableData.push({name : 'Total Passengers Carried', value : dataObj.passengersCarried});
-        tableData.push({name : 'Mean Passenger Wait Time', value: dataObj.waitTimes.average.toFixed(2)});
+        tableData.push({name : 'Mean Passenger Wait Time', value: d3.mean(dataObj.waitTimes).toFixed(2)});
         tableData.push({name : 'Median Passenger Wait Time', value: d3.median(dataObj.waitTimes)});
-
+        tableData.push({name : 'Mean Passenger Travel Time', value:d3.mean(dataObj.travelTimes).toFixed(2)});
         // calculate the average waiting time for the passengers
 
         thead.append('tr').selectAll('th').data(tableData).enter().append('th')

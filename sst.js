@@ -1,9 +1,10 @@
-var sst = function(hours,route,trains,seed) {
-
+var sst = function(hours,route,trains,seed,useDispatcher) {
 
 // Passenger
 function Passenger(tick) {
     this.creationTime = tick;
+    this.boardTime = 0;
+    this.destinationID = -1; // should generate an error if not set right after creation
 
     this.chooseDestination = function(curStat, statArr) {
         //calculate distance-weighted attractiveness for each station
@@ -28,22 +29,16 @@ function Passenger(tick) {
         while (rand > wa[i]) {
             i++;
         }
-        this.destination = statArr[i];
+        this.destinationID = statArr[i].id;
+        return this;
     };
 
-    this.enter = function(place) {
-        if (place instanceof Platform) {
-            place.push(this);
-        } else if (place instanceof Train) {
-            // Decide where to get off next
-        } else {
-            // error
-            console.log("Error in passenger entering place.");
-        }
+    this.setBoardTime = function(tick) {
+        this.boardTime = tick;
     };
 
     this.gettingOff = function(curStat) {
-        if (curStat == this.destination){
+        if (curStat.id === this.destinationID){
          return true;
      } else {
         return false;
@@ -55,16 +50,17 @@ function Passenger(tick) {
 }
 
 // Train
-function Train(id,startSeg, leftBound, pauseTicks) {
+function Train(id,startSeg, leftBound, pauseTicks, world) {
     this.id = id;
     this.passengers = []; // an array to hold the passengers on the train
-
-    this.pauseTicks = pauseTicks || 0; // the default time to wait at a location, in ticks
+    this.travelTimes = []; // hold the time the passengers have spent on the train
+    this.pauseTicks = pauseTicks || 0; // default time to wait at a location, in ticks
     this.speed = 45000; // in meters/hour
     this.capacity = 500;
 
     this.leftBound = leftBound;
     this.currentSegment = startSeg;
+    this.world = world;
     this.boarded = false;
     this.ready = false;
     this.distanceOnTrack = 0;
@@ -84,7 +80,6 @@ function Train(id,startSeg, leftBound, pauseTicks) {
         return this.capacity - this.passengers.length;
     };
 
-
     // return array of the passengers that are getting off
     this.disembark = function(station) {
         exitingPassengers = [];
@@ -93,6 +88,8 @@ function Train(id,startSeg, leftBound, pauseTicks) {
         // put passengers in their appropriate place
         for (i = this.passengers.length - 1; i >= 0; i--) {
             if (this.passengers[i].gettingOff(station)) {
+                // record time passenger spent on train (data collection)
+                this.world.dispatcher.addTravelTime(this.world.tickCount - this.passengers[i].boardTime);
                 exitingPassengers.push(this.passengers[i]);
             } else {
                 remainingPassengers.push(this.passengers[i]);
@@ -438,7 +435,7 @@ function Platform(station, leftBound) {
 
 
     this.push = function(person) {
-        this.newPass = true;
+        this.newPass = true; // flag for wait-time calculation
         return this.queue.push(person);
     };
 
@@ -452,9 +449,14 @@ function Platform(station, leftBound) {
         boardingPassengers = this.queue.slice(0,cap-1);
         this.queue = this.queue.slice(cap, this.queue.length);
 
+        // set the board times for each passenger
+        curTick = this.station.world.tickCount;
+        for (i = 0, len = boardingPassengers.length; i < len; i++) {
+            boardingPassengers[i].setBoardTime(curTick);
+        }
+
         // add the waiting times of passengers boarding to dispatcher (data collection)
         this.station.world.dispatcher.concatWaitTimes(this.waitTimes.slice(0,cap));
-
         this.waitTimes = this.waitTimes.slice(cap, this.waitTimes.length);
 
 
@@ -500,7 +502,6 @@ function Station(id, world, attractiveness, baseLambda) {
     this.baseLambda = baseLambda || 500;
     this.hasLeftBoundTrain = false;
     this.hasRightBoundTrain = false;
-    this.tickCount = 0; // keep track to allow time-dependent passenger creation
     this.leftBoundPlatform = new Platform(this, true);
     this.rightBoundPlatform = new Platform(this, false);
 
@@ -514,9 +515,9 @@ function Station(id, world, attractiveness, baseLambda) {
     this.generatePassengers = function() {
             // process governing passenger creation
             if (Math.random() < this.lambda() / (60 * 60)) { // assumes hourly lambda
-                var p = new Passenger(this.tickCount);
+                var p = new Passenger(this.world.tickCount);
                 p.chooseDestination(this,this.world.stations);
-                if (this.distanceFrom(p.destination) < 0 ){
+                if (p.destinationID > this.id ){
                     // assign to leftBoundPlatform
                     this.leftBoundPlatform.push(p);
                 } else {
@@ -677,6 +678,7 @@ function Dispatcher(world,execute) {
     this.headwayDists = [];
     this.passengersCarried = 0;
     this.waitTimes = [];
+    this.travelTimes = [];
 
     this.strategy = function() {
 
@@ -710,6 +712,10 @@ function Dispatcher(world,execute) {
     // allow concatenation of waitTimes
     this.concatWaitTimes = function(arr) {
         this.waitTimes = this.waitTimes.concat(arr);
+    };
+
+    this.addTravelTime = function(tickCount) {
+        this.travelTimes.push(tickCount);
     };
 
     // get the distance between two trains
@@ -817,9 +823,9 @@ function World(useDispatcher) {
 
     this.addTrainAtTick = function(tick, starOnLeftB) {
         if (starOnLeftB) {
-         this.trains.push(new Train(this.trains.length, this.line.leftMost, false, tick));
+         this.trains.push(new Train(this.trains.length, this.line.leftMost, false, tick, this));
      } else {
-         this.trains.push(new Train(this.trains.length, this.line.rightMost, true, tick));
+         this.trains.push(new Train(this.trains.length, this.line.rightMost, true, tick, this));
      }
  };
 
@@ -865,15 +871,14 @@ function World(useDispatcher) {
 }
 
 // Run the model
-getSimulationData = function(hours,route,trains,dispatcher,seed){
-
+getSimulationData = function(hours,route,trains,seed,useDispatcher){
     // if seed exists, use it, else just store the generated seed
     if (seed) {
         randomSeed = Math.seedrandom(seed);
     } else {
         randomSeed = Math.seedrandom();
     }
-    sst = new World(dispatcher);
+    sst = new World(useDispatcher);
 
 
     sst.generateRoute(route);
@@ -883,7 +888,6 @@ getSimulationData = function(hours,route,trains,dispatcher,seed){
 
     // Begin ticking the world
     totalTicks = hours * 60 * 60;
-
     // set up data container
     data = {
         stations: [],
@@ -945,18 +949,19 @@ getSimulationData = function(hours,route,trains,dispatcher,seed){
     //////////////
 
     //account for wait times of passengers never picked up
-    for (var i = 0, len = sst.stations.length; i < len; i++) {
-        d = sst.dispatcher;
-        // add leftbound
-        d.concatWaitTimes(sst.stations[i].leftBoundPlatform.waitTimes);
-        //add rightbound
-        d.concatWaitTimes(sst.stations[i].rightBoundPlatform.waitTimes);
-    }
+    // for (var i = 0, len = sst.stations.length; i < len; i++) {
+    //     d = sst.dispatcher;
+    //     // add leftbound
+    //     d.concatWaitTimes(sst.stations[i].leftBoundPlatform.waitTimes);
+    //     //add rightbound
+    //     d.concatWaitTimes(sst.stations[i].rightBoundPlatform.waitTimes);
+    // }
+
+    data.travelTimes = sst.dispatcher.travelTimes;
     data.waitTimes = sst.dispatcher.waitTimes;
-    data.waitTimes.average = meanArray(data.waitTimes);
     data.passengersCarried = sst.dispatcher.passengersCarried;
     return data;
 
 };
-return getSimulationData(hours,route,trains,seed);
+return getSimulationData(hours,route,trains,seed,useDispatcher);
 };

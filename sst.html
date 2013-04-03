@@ -19,22 +19,21 @@
 
 <script>
 // var baseRun = {
-//     width : 1900,
-//     height: 500,
+//     width : $(document).width(),
+//     height: 300,
 //     hours: 20,
+//     useDispatcher: false,
 //     randSeed: 'abc',
 //     route: [
 //         {kind: 'station'},
 //         {kind: 'track' , trackLength: 400},
-//         {kind: 'track' , trackLength: 400},
+//         {kind: 'station'},
 //         {kind: 'track' , trackLength: 1000},
-//         {kind: 'track' , trackLength: 400},
-//         {kind: 'track' , trackLength: 400},
 //         {kind: 'station'}
 //     ],
 //     trains: [
-//         { startOnLeft: false, startTime: 5 },
-//         { startOnLeft: true, startTime: 6 }
+//         { startOnLeft: false, startTime: 0 },
+//         { startOnLeft: true, startTime: 0 }
 
 //     ]
 // }
@@ -42,9 +41,9 @@
 // runModel(baseRun);
 
 var multiStation = {
-    width : 1600,
+    width : $(document).width(),
     height: 300,
-    hours: 20,
+    hours: 15,
     useDispatcher: true,
     randSeed: 'abc',
     route: [
@@ -73,6 +72,7 @@ var multiStation = {
         { startOnLeft: true, startTime: 0  },
         { startOnLeft: false, startTime:1 },
         { startOnLeft: true, startTime: 1 },
+
 
     ]
 }
