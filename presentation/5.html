@@ -1,0 +1,64 @@
+<html>
+<head>
+    <link rel="stylesheet" href="../css/chart.css" />
+    <link rel="stylesheet" href="../css/bootstrap.css" />
+    <script src="../js-support/jquery-1.9.1.min.js" type="text/javascript"></script>
+    <script src="../js-support/seedrandom.js" type="text/javascript"></script>
+    <script src="../js-support/d3.min.js" type="text/javascript"></script>
+    <script src="../js-support/jquery-ui-1.10.1.custom.min.js" type="text/javascript"></script>
+    <script src="../js-support/jstat-1.0.0/js/jstat-0.1.0.min.js" type="text/javascript"></script>
+</head>
+<body>
+<div class="world">
+</div>
+
+    <script src="../sst.js" type="text/javascript"></script>
+    <script src="../chart.js" type="text/javascript"></script>
+
+<!-- Run and display model -->
+
+<script>
+
+
+var multiStation = {
+    width : $(document).width(),
+    height: 300,
+    hours: 20,
+    useDispatcher: false,
+    randSeed: 'abc',
+    route: [
+        {here: 'station'},
+        {here: 'track' , trackLength: 300},
+        {here: 'track' , trackLength: 300},
+        {here: 'track' , trackLength: 300},
+        {here: 'track' , trackLength: 300},
+        {here: 'track' , trackLength: 300},
+        {here: 'station'},
+        {here: 'track' , trackLength: 300},
+        {here: 'track' , trackLength: 300},
+        {here: 'track' , trackLength: 300},
+        {here: 'track' , trackLength: 300},
+        {here: 'track' , trackLength: 300},
+        {here: 'station'},
+        {here: 'track' , trackLength: 300},
+        {here: 'track' , trackLength: 300},
+        {here: 'track' , trackLength: 300},
+        {here: 'track' , trackLength: 300},
+        {here: 'track' , trackLength: 300},
+        {here: 'station'}
+    ],
+    trains: [
+        { startOnLeft: false, startTime: 0 },
+        { startOnLeft: true, startTime: 0  },
+        { startOnLeft: false, startTime: 0 },
+        { startOnLeft: true, startTime: 0  }
+
+    ]
+}
+
+runModel(multiStation);
+
+
+</script>
+</body>
+</html>
